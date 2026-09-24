@@ -37,6 +37,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 size="sm"
+                nativeButton={false}
                 render={<Link href="/dashboard" />}
                 className="h-9 px-4 text-xs font-medium border-border/80 hover:border-border hover:bg-paper active:scale-[0.98]"
               >
@@ -46,6 +47,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 size="sm"
+                nativeButton={false}
                 render={<Link href="/login" />}
                 className="h-9 px-4 text-xs font-medium border-border/80 hover:border-border hover:bg-paper active:scale-[0.98]"
               >
