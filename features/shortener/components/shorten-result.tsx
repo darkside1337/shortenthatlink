@@ -24,6 +24,20 @@ export function ShortenResultCard({
   onToggleQr,
   onReset,
 }: ShortenResultProps) {
+  const fullShortUrl =
+    result.shortUrl.startsWith("http://") || result.shortUrl.startsWith("https://")
+      ? result.shortUrl
+      : `https://${result.shortUrl}`
+
+  const match = fullShortUrl.match(/^(https?:\/\/)(.*)$/)
+  const protocol = match ? match[1] : "https://"
+  const domainAndPath = match ? match[2] : result.shortUrl
+
+  const destinationUrl =
+    targetUrl.startsWith("http://") || targetUrl.startsWith("https://")
+      ? targetUrl
+      : `https://${targetUrl}`
+
   return (
     <div className="space-y-4 animate-in fade-in-50 duration-200">
       <div className="flex items-center justify-between gap-2 pb-1 border-b border-border/60">
@@ -46,10 +60,10 @@ export function ShortenResultCard({
       {/* Result Block: Monospace alias chip + Copy button */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
         <div className="flex-1 min-w-0 bg-paper border border-border rounded-lg px-3.5 py-2.5 flex items-center justify-between gap-2 overflow-hidden">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-xs text-muted-foreground font-mono select-none">https://</span>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-xs text-muted-foreground font-mono select-none">{protocol}</span>
             <span className="font-mono text-sm sm:text-base font-medium text-foreground truncate">
-              {result.shortUrl}
+              {domainAndPath}
             </span>
           </div>
           <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-mint-bg text-mint-text border border-mint-bg">
@@ -86,7 +100,7 @@ export function ShortenResultCard({
         <div className="flex items-center gap-1.5 min-w-0 max-w-[340px]">
           <span className="shrink-0 select-none">Target:</span>
           <a
-            href={targetUrl}
+            href={destinationUrl}
             target="_blank"
             rel="noreferrer"
             className="font-mono text-[11px] truncate text-foreground hover:text-electric-blue transition-colors flex items-center gap-1"
@@ -111,7 +125,7 @@ export function ShortenResultCard({
       {/* QR Code Preview Drawer */}
       {showQrDrawer && (
         <div className="mt-3 pt-3 border-t border-border/60 flex items-center gap-4 bg-paper/60 p-3 rounded-xl border border-border/80">
-          <QRCodeImage value={`https://${result.shortUrl}`} size={84} />
+          <QRCodeImage value={fullShortUrl} size={84} />
           <div className="flex flex-col gap-1 text-left">
             <span className="text-xs font-medium text-foreground">Scan or Share</span>
             <p className="text-[11px] text-muted-foreground leading-relaxed">

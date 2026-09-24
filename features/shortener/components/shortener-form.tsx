@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, AlertCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -18,6 +18,8 @@ export function ShortenerForm() {
     setExpiration,
     isAdvancedOpen,
     setIsAdvancedOpen,
+    isLoading,
+    error,
     createdResult,
     copied,
     showQrDrawer,
@@ -41,6 +43,16 @@ export function ShortenerForm() {
         />
       ) : (
         <form onSubmit={handleShorten} className="space-y-3.5">
+          {error && (
+            <div
+              role="alert"
+              className="p-3 text-xs rounded-lg border border-rose-badge-bg bg-rose-badge-bg/30 text-rose-badge-text flex items-center gap-2"
+            >
+              <AlertCircle className="size-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           {/* Single-line URL input row paired with dark Shorten button */}
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="relative flex-1">
@@ -50,15 +62,26 @@ export function ShortenerForm() {
                 placeholder="https://github.com/..."
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
+                disabled={isLoading}
                 className="h-12 sm:h-11 text-base sm:text-sm px-3.5 bg-background border-border focus-visible:ring-electric-blue/20 focus-visible:border-electric-blue"
               />
             </div>
             <Button
               type="submit"
+              disabled={isLoading || !url.trim()}
               className="w-full sm:w-auto h-12 sm:h-11 px-6 text-base sm:text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98] gap-2 rounded-lg"
             >
-              <span>Shorten</span>
-              <ArrowRight className="size-4" />
+              {isLoading ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  <span>Shortening…</span>
+                </>
+              ) : (
+                <>
+                  <span>Shorten</span>
+                  <ArrowRight className="size-4" />
+                </>
+              )}
             </Button>
           </div>
 
@@ -76,3 +99,4 @@ export function ShortenerForm() {
     </Card>
   )
 }
+
