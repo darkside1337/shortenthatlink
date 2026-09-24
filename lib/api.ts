@@ -2,14 +2,19 @@ import { NextResponse } from "next/server";
 
 /**
  * Type guard for PostgreSQL unique constraint violation (error code 23505).
+ *
+ * Drizzle wraps driver errors (`Failed query: ...`), nesting the original PG
+ * error — which carries `.code` — under `.cause`. Unit-test mocks tend to use
+ * a flat `{ code: "23505" }` shape, so both are accepted (cause is followed
+ * recursively, since wrappers can nest).
  */
 export function isPgUniqueViolation(err: unknown): err is { code: string } {
-  return (
-    typeof err === "object" &&
-    err !== null &&
-    "code" in err &&
-    (err as { code: unknown }).code === "23505"
-  );
+  if (typeof err !== "object" || err === null) return false;
+  if ("code" in err && (err as { code: unknown }).code === "23505") return true;
+  if ("cause" in err) {
+    return isPgUniqueViolation((err as { cause: unknown }).cause);
+  }
+  return false;
 }
 
 export type ApiErrorCode =
