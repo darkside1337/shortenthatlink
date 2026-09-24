@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 
+// Dev-only allowance so impeccable live mode can load. Guarded by NODE_ENV.
+const __impeccableLiveDev =
+  process.env.NODE_ENV === "development" ? " http://localhost:8400" : "";
+
 const securityHeaders = [
   {
     key: "X-DNS-Prefetch-Control",
@@ -33,11 +37,11 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      `script-src 'self' 'unsafe-inline' 'unsafe-eval'${__impeccableLiveDev}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' blob: data: https:",
       "font-src 'self'",
-      "connect-src 'self' https:",
+      `connect-src 'self' https:${__impeccableLiveDev}`,
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
