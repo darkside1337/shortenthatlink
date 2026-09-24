@@ -61,7 +61,7 @@
 
 - [x] **1.5.3** Run `pnpm test:unit` — the existing `lib/__tests__/alias.test.ts` suite (11 tests across `RESERVED_ALIASES`, `generateAlias`, `validateCustomAlias`) should pass cleanly with no path-alias errors.
 
-- [ ] **1.5.4** Run `pnpm test:integration` — `lib/__tests__/urls.integration.test.ts` should pass against your Neon dev database (requires `DATABASE_URL` in `.env.local`). _(This can be deferred until after Phase 2.4 when `lib/urls.ts` is implemented.)_
+- [x] **1.5.4** Run `pnpm test:integration` — `lib/__tests__/urls.integration.test.ts` should pass against your Neon dev database (requires `DATABASE_URL` in `.env.local`). _(This can be deferred until after Phase 2.4 when `lib/urls.ts` is implemented.)_
 
 ---
 
@@ -136,7 +136,7 @@
   - Query: `DELETE FROM url WHERE expiresAt IS NOT NULL AND expiresAt < NOW()`.
   - Return the count of deleted rows (use `.returning()` and `.length`, or check Drizzle's delete result).
 
-- [ ] **2.4.8** Run `pnpm test:integration` — all 6 test cases in `lib/__tests__/urls.integration.test.ts` (`createUrl`, `findUrlByAlias`, `renameUrlAlias`, `listUrlsForUser`, `deleteUrl`, `deleteExpiredUrls`) should pass against your Neon dev database. This also satisfies step **1.5.4**.
+- [x] **2.4.8** Run `pnpm test:integration` — all 6 test cases in `lib/__tests__/urls.integration.test.ts` (`createUrl`, `findUrlByAlias`, `renameUrlAlias`, `listUrlsForUser`, `deleteUrl`, `deleteExpiredUrls`) should pass against your Neon dev database. This also satisfies step **1.5.4**.
 
 ---
 
