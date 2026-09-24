@@ -1,24 +1,29 @@
 "use client"
 
-import { Plus, Sparkles } from "lucide-react"
+import { Plus, Sparkles, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LinkItem } from "../types"
 import { useDashboard } from "../hooks/use-dashboard"
 import { DashboardHeader } from "./dashboard-header"
 import { DashboardEmptyState } from "./dashboard-empty-state"
 import { LinksTable } from "./links-table"
+import { LinksTableSkeleton } from "./links-table-skeleton"
 import { ManageLinkDialog } from "./manage-link-dialog"
 import { CreateLinkDialog } from "./create-link-dialog"
+import type { Session } from "@/lib/auth"
 
 interface DashboardViewProps {
   initialLinks?: LinkItem[]
-  user?: any
+  user?: Session["user"] | null
+  host?: string
 }
 
-export function DashboardView({ initialLinks, user }: DashboardViewProps = {}) {
+export function DashboardView({ initialLinks, user, host }: DashboardViewProps = {}) {
   const {
     links,
     isLoading,
+    fetchError,
+    refetch,
     isSubmitting,
     createError,
     copiedId,
@@ -73,14 +78,35 @@ export function DashboardView({ initialLinks, user }: DashboardViewProps = {}) {
           </Button>
         </div>
 
-        {/* Content: Populated Table vs Empty State */}
+        {/* Content: Populated Table vs Empty State vs Skeleton vs Error */}
         <div className="mt-6">
-          {links.length === 0 && !isLoading ? (
+          {isLoading ? (
+            <LinksTableSkeleton />
+          ) : fetchError ? (
+            <div
+              role="alert"
+              className="p-4 rounded-xl border border-rose-badge-bg bg-rose-badge-bg/25 text-rose-badge-text flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
+            >
+              <div className="flex items-center gap-2">
+                <AlertCircle className="size-4 shrink-0" />
+                <span>{fetchError}</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={refetch}
+                className="h-7 px-3 text-xs border-rose-badge-text/40 hover:bg-rose-badge-bg/50"
+              >
+                Retry
+              </Button>
+            </div>
+          ) : links.length === 0 ? (
             <DashboardEmptyState onCreateNew={() => setIsCreatingNew(true)} />
           ) : (
             <LinksTable
               links={links}
               copiedId={copiedId}
+              host={host}
               onCopy={handleCopy}
               onOpenManage={handleOpenManage}
             />
@@ -95,6 +121,7 @@ export function DashboardView({ initialLinks, user }: DashboardViewProps = {}) {
         aliasError={aliasError}
         isDeleteConfirming={isDeleteConfirming}
         isSubmitting={isSubmitting}
+        host={host}
         onClose={handleCloseManage}
         onAliasInputChange={setManageAliasInput}
         onSaveManage={handleSaveManage}

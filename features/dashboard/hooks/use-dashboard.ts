@@ -1,16 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import type { ExpirationOption } from "@/features/shortener/types"
+import { computeExpirationDate } from "@/lib/expiration"
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { LinkItem } from "../types"
 import { mapUrlsToLinkItems } from "../lib/link-mapper"
 
 export function useDashboard({ initialLinks }: { initialLinks?: LinkItem[] } = {}) {
   const [links, setLinks] = useState<LinkItem[]>(initialLinks ?? [])
   const [isLoading, setIsLoading] = useState<boolean>(!initialLinks)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [createError, setCreateError] = useState<string | null>(null)
   const [aliasError, setAliasError] = useState<string | null>(null)
-  const [copiedId, setCopiedId] = useState<number | null>(null)
+  const { copiedId, copy } = useCopyToClipboard<number>(2000)
 
   // Manage Link modal state (rename + delete)
   const [managingLink, setManagingLink] = useState<LinkItem | null>(null)
@@ -21,53 +25,52 @@ export function useDashboard({ initialLinks }: { initialLinks?: LinkItem[] } = {
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false)
   const [newUrl, setNewUrl] = useState<string>("")
   const [newCustomAlias, setNewCustomAlias] = useState<string>("")
-  const [newExpiry, setNewExpiry] = useState<string>("never")
+  const [newExpiry, setNewExpiry] = useState<ExpirationOption>("never")
+
+  const refetch = useCallback(async () => {
+    setIsLoading(true)
+    setFetchError(null)
+    try {
+      const res = await fetch("/api/urls")
+      const data = await res.json()
+      if (data?.success && data?.data) {
+        setLinks(mapUrlsToLinkItems(data.data))
+      } else {
+        setFetchError(data?.error?.message || "Failed to load links.")
+      }
+    } catch {
+      setFetchError("Failed to load links. Check your connection.")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (!initialLinks) {
-      let isMounted = true
-      fetch("/api/urls")
-        .then((res) => res.json())
-        .then((data) => {
-          if (isMounted && data?.data) {
-            setLinks(mapUrlsToLinkItems(data.data))
-          }
-        })
-        .catch(() => {
-          // Keep empty links or fallback
-        })
-        .finally(() => {
-          if (isMounted) {
-            setIsLoading(false)
-          }
-        })
-      return () => {
-        isMounted = false
-      }
+      refetch()
     }
-  }, [initialLinks])
+  }, [initialLinks, refetch])
 
-  const handleCopy = (id: number, alias: string) => {
-    const origin = typeof window !== "undefined" ? window.location.origin : ""
-    navigator.clipboard.writeText(`${origin}/${alias}`)
-    setCopiedId(id)
-    setTimeout(() => {
-      setCopiedId((prev) => (prev === id ? null : prev))
-    }, 2000)
-  }
+  const handleCopy = useCallback(
+    (id: number, alias: string) => {
+      const origin = typeof window !== "undefined" ? window.location.origin : ""
+      copy(id, `${origin}/${alias}`)
+    },
+    [copy]
+  )
 
-  const handleOpenManage = (link: LinkItem, confirmDeleteFirst = false) => {
+  const handleOpenManage = useCallback((link: LinkItem, confirmDeleteFirst = false) => {
     setManagingLink(link)
     setManageAliasInput(link.alias)
     setAliasError(null)
     setIsDeleteConfirming(confirmDeleteFirst)
-  }
+  }, [])
 
-  const handleCloseManage = () => {
+  const handleCloseManage = useCallback(() => {
     setManagingLink(null)
     setAliasError(null)
     setIsDeleteConfirming(false)
-  }
+  }, [])
 
   const handleSaveManage = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -122,9 +125,12 @@ export function useDashboard({ initialLinks }: { initialLinks?: LinkItem[] } = {
       if (res.ok) {
         setLinks((prev) => prev.filter((l) => l.id !== managingLink.id))
         handleCloseManage()
+      } else {
+        const data = await res.json().catch(() => null)
+        setAliasError(data?.error?.message || "Failed to delete link.")
       }
     } catch {
-      // Ignore or handle network failure
+      setAliasError("Failed to delete link. Check your network connection.")
     } finally {
       setIsSubmitting(false)
     }
@@ -137,16 +143,7 @@ export function useDashboard({ initialLinks }: { initialLinks?: LinkItem[] } = {
     setIsSubmitting(true)
     setCreateError(null)
 
-    let computedExpiresAt: string | undefined = undefined
-    if (newExpiry === "1h") {
-      computedExpiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
-    } else if (newExpiry === "24h") {
-      computedExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-    } else if (newExpiry === "7d") {
-      computedExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-    } else if (newExpiry === "30d") {
-      computedExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-    }
+    const computedExpiresAt = computeExpirationDate(newExpiry)
 
     try {
       const res = await fetch("/api/urls", {
@@ -162,13 +159,10 @@ export function useDashboard({ initialLinks }: { initialLinks?: LinkItem[] } = {
       const data = await res.json()
 
       if (res.status === 201) {
-        const [newLinkItem] = mapUrlsToLinkItems([
-          {
-            ...data.data,
-            isCustomAlias: Boolean(newCustomAlias.trim()),
-          },
-        ])
-        setLinks((prev) => [newLinkItem, ...prev])
+        const [newLinkItem] = mapUrlsToLinkItems([data.data])
+        if (newLinkItem) {
+          setLinks((prev) => [newLinkItem, ...prev])
+        }
         setNewUrl("")
         setNewCustomAlias("")
         setNewExpiry("never")
@@ -187,6 +181,8 @@ export function useDashboard({ initialLinks }: { initialLinks?: LinkItem[] } = {
   return {
     links,
     isLoading,
+    fetchError,
+    refetch,
     isSubmitting,
     createError,
     copiedId,

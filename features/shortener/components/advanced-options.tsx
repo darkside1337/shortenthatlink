@@ -2,7 +2,7 @@
 
 import { Clock, SlidersHorizontal, ChevronUp, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { AliasInput } from "@/components/ui/alias-input"
 import {
   Select,
   SelectContent,
@@ -58,19 +58,12 @@ export function AdvancedOptions({
             >
               Custom alias (optional)
             </label>
-            <div className="flex items-center rounded-lg border border-border bg-background overflow-hidden focus-within:border-electric-blue focus-within:ring-2 focus-within:ring-electric-blue/20">
-              <span className="bg-paper px-3 py-2 text-xs font-mono text-muted-foreground border-r border-border select-none">
-                shortenTHATlink/
-              </span>
-              <Input
-                id="custom-alias"
-                type="text"
-                value={customAlias}
-                onChange={(e) => onCustomAliasChange(e.target.value)}
-                placeholder="my-link"
-                className="border-0 shadow-none focus-visible:ring-0 h-9 text-xs font-mono px-2.5"
-              />
-            </div>
+            <AliasInput
+              id="custom-alias"
+              value={customAlias}
+              onChange={onCustomAliasChange}
+              placeholder="my-link"
+            />
             <p className="text-[11px] text-muted-foreground font-mono">
               4–52 characters, a-z 0-9 -
             </p>

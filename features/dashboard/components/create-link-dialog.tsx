@@ -3,6 +3,7 @@
 import { Loader2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { AliasInput } from "@/components/ui/alias-input"
 import {
   Dialog,
   DialogContent,
@@ -18,18 +19,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import type { ExpirationOption } from "@/features/shortener/types"
 
 interface CreateLinkDialogProps {
   isOpen: boolean
   newUrl: string
   newCustomAlias: string
-  newExpiry: string
+  newExpiry: ExpirationOption
   isSubmitting?: boolean
   createError?: string | null
   onOpenChange: (open: boolean) => void
   onUrlChange: (val: string) => void
   onCustomAliasChange: (val: string) => void
-  onExpiryChange: (val: string) => void
+  onExpiryChange: (val: ExpirationOption) => void
   onCreateLink: (e: React.FormEvent) => void
 }
 
@@ -47,7 +49,12 @@ export function CreateLinkDialog({
   onCreateLink,
 }: CreateLinkDialogProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && !isSubmitting) onOpenChange(false)
+      }}
+    >
       <DialogContent className="sm:max-w-md p-6">
         <DialogHeader>
           <DialogTitle className="text-base font-medium">Create New Short Link</DialogTitle>
@@ -87,20 +94,13 @@ export function CreateLinkDialog({
             <label htmlFor="create-alias" className="text-xs font-medium text-foreground block">
               Custom alias (optional)
             </label>
-            <div className="flex items-center rounded-lg border border-border bg-background overflow-hidden focus-within:border-electric-blue focus-within:ring-2 focus-within:ring-electric-blue/20">
-              <span className="bg-paper px-3 py-2 text-xs font-mono text-muted-foreground border-r border-border select-none">
-                shortenTHATlink/
-              </span>
-              <Input
-                id="create-alias"
-                type="text"
-                disabled={isSubmitting}
-                placeholder="custom-slug"
-                value={newCustomAlias}
-                onChange={(e) => onCustomAliasChange(e.target.value.toLowerCase())}
-                className="border-0 shadow-none focus-visible:ring-0 h-9 text-xs font-mono px-2.5"
-              />
-            </div>
+            <AliasInput
+              id="create-alias"
+              disabled={isSubmitting}
+              placeholder="custom-slug"
+              value={newCustomAlias}
+              onChange={onCustomAliasChange}
+            />
           </div>
 
           <div className="space-y-1">
@@ -110,7 +110,7 @@ export function CreateLinkDialog({
             <Select
               disabled={isSubmitting}
               value={newExpiry}
-              onValueChange={(val) => val && onExpiryChange(val)}
+              onValueChange={(val) => val && onExpiryChange(val as ExpirationOption)}
             >
               <SelectTrigger id="create-expiry" className="w-full h-9 text-xs bg-background border-border">
                 <SelectValue placeholder="Select expiry" />

@@ -1,6 +1,4 @@
-"use client"
-
-import { useState, useEffect } from "react"
+import React from "react"
 import { Check, Copy, ExternalLink, Clock, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LinkItem } from "../types"
@@ -8,34 +6,22 @@ import { LinkItem } from "../types"
 interface LinkRowProps {
   link: LinkItem
   isCopied: boolean
-  isHoverSample?: boolean
+  host?: string
   onCopy: (id: number, alias: string) => void
   onOpenManage: (link: LinkItem, confirmDeleteFirst: boolean) => void
 }
 
-export function LinkRow({
+export const LinkRow = React.memo(function LinkRow({
   link,
   isCopied,
-  isHoverSample,
+  host = "",
   onCopy,
   onOpenManage,
 }: LinkRowProps) {
-  const [host, setHost] = useState<string>("")
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setHost(window.location.host)
-    }
-  }, [])
-
   const displayLink = host ? `${host}/${link.alias}` : link.alias
 
   return (
-    <tr
-      className={`transition-colors ${
-        isHoverSample ? "bg-muted/40" : "hover:bg-muted/30"
-      }`}
-    >
+    <tr className="transition-colors hover:bg-muted/30">
       {/* 1. Short Link */}
       <td className="py-3.5 px-4 font-mono">
         <div className="inline-flex items-center gap-1.5">
@@ -48,6 +34,7 @@ export function LinkRow({
             size="icon-xs"
             onClick={() => onCopy(link.id, link.alias)}
             title="Copy short link"
+            aria-label={`Copy short link for ${link.alias}`}
             className={`rounded-md border transition-all ${
               isCopied
                 ? "bg-mint-bg text-mint-text border-mint-bg"
@@ -122,6 +109,7 @@ export function LinkRow({
             size="icon-xs"
             onClick={() => onOpenManage(link, false)}
             title="Manage link (Rename & Delete)"
+            aria-label={`Manage link ${link.alias}`}
             className="rounded-md hover:bg-paper hover:border hover:border-border text-muted-foreground hover:text-foreground transition-colors"
           >
             <Pencil className="size-3.5" />
@@ -132,6 +120,7 @@ export function LinkRow({
             size="icon-xs"
             onClick={() => onOpenManage(link, true)}
             title="Delete link"
+            aria-label={`Delete link ${link.alias}`}
             className="rounded-md hover:bg-rose-badge-bg/40 hover:text-rose-badge-text text-muted-foreground transition-colors"
           >
             <Trash2 className="size-3.5" />
@@ -140,4 +129,4 @@ export function LinkRow({
       </td>
     </tr>
   )
-}
+})

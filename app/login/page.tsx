@@ -10,6 +10,10 @@ import { ThemeToggle } from "@/components/theme-toggle"
 export const metadata = {
   title: "Sign in — shortenTHATlink",
   description: "Sign in to manage and track your links.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 }
 
 export default async function LoginPage() {

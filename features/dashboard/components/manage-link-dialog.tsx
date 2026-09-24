@@ -1,8 +1,7 @@
-"use client"
-
 import { X, AlertCircle, AlertTriangle, Trash2, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { AliasInput } from "@/components/ui/alias-input"
 import {
   Dialog,
   DialogContent,
@@ -19,6 +18,7 @@ interface ManageLinkDialogProps {
   aliasError: string | null
   isDeleteConfirming: boolean
   isSubmitting?: boolean
+  host?: string
   onClose: () => void
   onAliasInputChange: (val: string) => void
   onSaveManage: (e: React.FormEvent) => void
@@ -32,6 +32,7 @@ export function ManageLinkDialog({
   aliasError,
   isDeleteConfirming,
   isSubmitting = false,
+  host,
   onClose,
   onAliasInputChange,
   onSaveManage,
@@ -93,28 +94,16 @@ export function ManageLinkDialog({
                 </label>
 
                 {/* Alias Input Row */}
-                <div
-                  className={`flex items-center rounded-lg bg-background overflow-hidden transition-all ${
-                    aliasError
-                      ? "border border-rose-badge-text ring-1 ring-rose-badge-text/40"
-                      : "border border-border focus-within:border-electric-blue focus-within:ring-2 focus-within:ring-electric-blue/20"
-                  }`}
-                >
-                  <span className="bg-paper px-3 py-2 text-xs font-mono text-muted-foreground border-r border-border select-none">
-                    shortenTHATlink/
-                  </span>
-                  <Input
-                    id="manage-alias"
-                    type="text"
-                    required
-                    disabled={isSubmitting}
-                    value={manageAliasInput}
-                    onChange={(e) => onAliasInputChange(e.target.value.toLowerCase())}
-                    className="border-0 shadow-none focus-visible:ring-0 h-9 text-xs font-mono px-2.5"
-                    placeholder="custom-alias"
-                    aria-invalid={Boolean(aliasError)}
-                  />
-                </div>
+                <AliasInput
+                  id="manage-alias"
+                  disabled={isSubmitting}
+                  value={manageAliasInput}
+                  onChange={onAliasInputChange}
+                  placeholder="custom-alias"
+                  host={host}
+                  aria-invalid={Boolean(aliasError)}
+                  autoFocus
+                />
 
                 {/* Error State Display */}
                 {aliasError && (
@@ -177,7 +166,7 @@ export function ManageLinkDialog({
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       This action cannot be undone. Link{" "}
                       <span className="font-mono text-foreground font-medium">
-                        shortenTHATlink/{managingLink.alias}
+                        {host ? `${host}/${managingLink.alias}` : managingLink.alias}
                       </span>{" "}
                       will be permanently deleted and will stop redirecting immediately.
                     </p>

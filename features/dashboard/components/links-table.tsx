@@ -8,6 +8,7 @@ import { LinkCard } from "./link-card"
 interface LinksTableProps {
   links: LinkItem[]
   copiedId: number | null
+  host?: string
   onCopy: (id: number, alias: string) => void
   onOpenManage: (link: LinkItem, confirmDeleteFirst: boolean) => void
 }
@@ -15,6 +16,7 @@ interface LinksTableProps {
 export function LinksTable({
   links,
   copiedId,
+  host,
   onCopy,
   onOpenManage,
 }: LinksTableProps) {
@@ -33,11 +35,11 @@ export function LinksTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-border/60 text-xs">
-            {links.map((link, idx) => (
+            {links.map((link) => (
               <LinkRow
                 key={link.id}
                 link={link}
-                isHoverSample={idx === 1}
+                host={host}
                 isCopied={copiedId === link.id}
                 onCopy={onCopy}
                 onOpenManage={onOpenManage}
@@ -53,6 +55,7 @@ export function LinksTable({
           <LinkCard
             key={link.id}
             link={link}
+            host={host}
             isCopied={copiedId === link.id}
             onCopy={onCopy}
             onOpenManage={onOpenManage}

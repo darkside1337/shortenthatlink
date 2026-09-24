@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { ShortenResult, ExpirationOption } from "../types"
+import { computeExpirationDate } from "@/lib/expiration"
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 
 export function useShortener() {
   const [url, setUrl] = useState<string>("")
@@ -13,25 +15,15 @@ export function useShortener() {
   const [error, setError] = useState<string | null>(null)
 
   const [createdResult, setCreatedResult] = useState<ShortenResult | null>(null)
-  const [copied, setCopied] = useState<boolean>(false)
+  const { copiedId, copy } = useCopyToClipboard(2200)
+  const copied = Boolean(copiedId)
   const [showQrDrawer, setShowQrDrawer] = useState<boolean>(false)
 
   const handleShorten = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
     if (!url.trim()) return
 
-    let computedExpiresAt: string | undefined
-    if (expiration === "1h") {
-      computedExpiresAt = new Date(Date.now() + 3600 * 1000).toISOString()
-    } else if (expiration === "24h") {
-      computedExpiresAt = new Date(Date.now() + 24 * 3600 * 1000).toISOString()
-    } else if (expiration === "7d") {
-      computedExpiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString()
-    } else if (expiration === "30d") {
-      computedExpiresAt = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString()
-    } else {
-      computedExpiresAt = undefined
-    }
+    const computedExpiresAt = computeExpirationDate(expiration)
 
     setIsLoading(true)
     setError(null)
@@ -71,14 +63,11 @@ export function useShortener() {
     const fullUrl = createdResult.shortUrl.startsWith("http")
       ? createdResult.shortUrl
       : `https://${createdResult.shortUrl}`
-    navigator.clipboard.writeText(fullUrl)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2200)
+    copy("result", fullUrl)
   }
 
   const handleReset = () => {
     setCreatedResult(null)
-    setCopied(false)
     setShowQrDrawer(false)
     setError(null)
     setUrl("")

@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Moon, Sun, Monitor, Check } from "lucide-react"
 import { useTheme } from "next-themes"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,10 +30,12 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="icon"
             className={cn(
-              "relative inline-flex size-9 items-center justify-center rounded-lg border border-border/80 bg-background text-foreground transition-all hover:border-border hover:bg-paper active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-electric-blue",
+              "relative size-9 rounded-lg border border-border/80 bg-background text-foreground transition-all hover:border-border hover:bg-paper active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-electric-blue",
               className
             )}
             aria-label="Toggle theme"
@@ -45,6 +48,8 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-36 p-1">
         <DropdownMenuItem
+          role="menuitemradio"
+          aria-checked={mounted ? theme === "light" : undefined}
           onClick={() => setTheme("light")}
           className="flex items-center justify-between text-xs cursor-pointer py-1.5 px-2 rounded-md"
         >
@@ -57,6 +62,8 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
           )}
         </DropdownMenuItem>
         <DropdownMenuItem
+          role="menuitemradio"
+          aria-checked={mounted ? theme === "dark" : undefined}
           onClick={() => setTheme("dark")}
           className="flex items-center justify-between text-xs cursor-pointer py-1.5 px-2 rounded-md"
         >
@@ -69,6 +76,8 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
           )}
         </DropdownMenuItem>
         <DropdownMenuItem
+          role="menuitemradio"
+          aria-checked={mounted ? theme === "system" : undefined}
           onClick={() => setTheme("system")}
           className="flex items-center justify-between text-xs cursor-pointer py-1.5 px-2 rounded-md"
         >

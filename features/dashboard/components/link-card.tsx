@@ -1,6 +1,4 @@
-"use client"
-
-import { useState, useEffect } from "react"
+import React from "react"
 import { Check, Copy, ExternalLink, Clock, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -9,24 +7,18 @@ import { LinkItem } from "../types"
 interface LinkCardProps {
   link: LinkItem
   isCopied: boolean
+  host?: string
   onCopy: (id: number, alias: string) => void
   onOpenManage: (link: LinkItem, confirmDeleteFirst: boolean) => void
 }
 
-export function LinkCard({
+export const LinkCard = React.memo(function LinkCard({
   link,
   isCopied,
+  host = "",
   onCopy,
   onOpenManage,
 }: LinkCardProps) {
-  const [host, setHost] = useState<string>("")
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setHost(window.location.host)
-    }
-  }, [])
-
   const displayLink = host ? `${host}/${link.alias}` : link.alias
 
   return (
@@ -43,6 +35,7 @@ export function LinkCard({
           variant="outline"
           size="sm"
           onClick={() => onCopy(link.id, link.alias)}
+          aria-label={`Copy short link for ${link.alias}`}
           className={`h-9 px-3 shrink-0 rounded-lg text-xs gap-1.5 ${
             isCopied
               ? "bg-mint-bg text-mint-text border-mint-bg"
@@ -107,6 +100,7 @@ export function LinkCard({
             variant="ghost"
             size="sm"
             onClick={() => onOpenManage(link, false)}
+            aria-label={`Edit link ${link.alias}`}
             className="h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground"
           >
             <Pencil className="size-3.5 mr-1" />
@@ -116,6 +110,7 @@ export function LinkCard({
             variant="ghost"
             size="sm"
             onClick={() => onOpenManage(link, true)}
+            aria-label={`Delete link ${link.alias}`}
             className="h-8 px-2.5 text-xs text-rose-badge-text hover:text-rose-badge-text hover:bg-rose-badge-bg/40"
           >
             <Trash2 className="size-3.5 mr-1" />
@@ -125,4 +120,4 @@ export function LinkCard({
       </div>
     </Card>
   )
-}
+})

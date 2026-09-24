@@ -59,6 +59,7 @@ export function ShortenerForm() {
               <Input
                 type="url"
                 required
+                aria-label="URL to shorten"
                 placeholder="https://github.com/..."
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
