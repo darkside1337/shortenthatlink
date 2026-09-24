@@ -127,8 +127,10 @@ describe("/api/urls", () => {
           id: 1,
           alias: "auto12345",
           originalUrl: "https://example.com",
+          isCustomAlias: false,
           expiresAt: null,
           createdAt: mockCreated.createdAt.toISOString(),
+          updatedAt: mockCreated.updatedAt.toISOString(),
         },
       });
     });
@@ -172,8 +174,10 @@ describe("/api/urls", () => {
           id: 2,
           alias: "my-custom-alias",
           originalUrl: "https://example.com",
+          isCustomAlias: true,
           expiresAt: null,
           createdAt: mockCreated.createdAt.toISOString(),
+          updatedAt: mockCreated.updatedAt.toISOString(),
         },
       });
     });
@@ -268,6 +272,7 @@ describe("/api/urls", () => {
         success: false,
         error: {
           message: "Authentication required.",
+          code: "UNAUTHORIZED",
         },
       });
       expect(urlsModule.listUrlsForUser).not.toHaveBeenCalled();

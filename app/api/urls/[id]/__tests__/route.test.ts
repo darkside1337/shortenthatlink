@@ -34,7 +34,10 @@ describe("app/api/urls/[id]/route", () => {
       expect(res.status).toBe(401);
       expect(json).toEqual({
         success: false,
-        error: { message: "Authentication required." },
+        error: {
+          message: "Authentication required.",
+          code: "UNAUTHORIZED",
+        },
       });
       expect(urls.renameUrlAlias).not.toHaveBeenCalled();
     });
@@ -122,7 +125,10 @@ describe("app/api/urls/[id]/route", () => {
       expect(res.status).toBe(404);
       expect(json).toEqual({
         success: false,
-        error: { message: "Link not found or access denied." },
+        error: {
+          message: "Link not found or access denied.",
+          code: "NOT_FOUND",
+        },
       });
       expect(urls.renameUrlAlias).toHaveBeenCalledWith(42, "user-123", "valid-alias");
     });
@@ -207,7 +213,10 @@ describe("app/api/urls/[id]/route", () => {
       expect(res.status).toBe(401);
       expect(json).toEqual({
         success: false,
-        error: { message: "Authentication required." },
+        error: {
+          message: "Authentication required.",
+          code: "UNAUTHORIZED",
+        },
       });
       expect(urls.deleteUrl).not.toHaveBeenCalled();
     });
@@ -234,9 +243,32 @@ describe("app/api/urls/[id]/route", () => {
       expect(urls.deleteUrl).not.toHaveBeenCalled();
     });
 
+    it("returns 404 when deleteUrl returns false (link not found or not owned)", async () => {
+      vi.mocked(auth.getCurrentUserId).mockResolvedValue("user-123");
+      vi.mocked(urls.deleteUrl).mockResolvedValueOnce(false);
+
+      const req = new NextRequest("http://localhost:3000/api/urls/999", {
+        method: "DELETE",
+      });
+      const params = Promise.resolve({ id: "999" });
+
+      const res = await DELETE(req, { params });
+      const json = await res.json();
+
+      expect(res.status).toBe(404);
+      expect(json).toEqual({
+        success: false,
+        error: {
+          message: "Link not found or access denied.",
+          code: "NOT_FOUND",
+        },
+      });
+      expect(urls.deleteUrl).toHaveBeenCalledWith(999, "user-123");
+    });
+
     it("returns 200 on success", async () => {
       vi.mocked(auth.getCurrentUserId).mockResolvedValue("user-123");
-      vi.mocked(urls.deleteUrl).mockResolvedValueOnce(undefined);
+      vi.mocked(urls.deleteUrl).mockResolvedValueOnce(true);
 
       const req = new NextRequest("http://localhost:3000/api/urls/42", {
         method: "DELETE",

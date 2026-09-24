@@ -1,6 +1,6 @@
 import { and, desc, eq, isNotNull, lt, sql } from "drizzle-orm";
-import { db } from "@/db";
-import { url, type Url } from "@/db/schema";
+import { db } from "@/lib/db";
+import { url, type Url } from "@/lib/db/schema";
 
 export interface CreateUrlInput {
   originalUrl: string;
@@ -69,11 +69,15 @@ export async function renameUrlAlias(
 /**
  * Deletes a URL record for a specific owner.
  * Enforces ownership inside the WHERE clause (`id = id AND userId = userId`).
+ * Returns true if a row was deleted, false if not found or unauthorized.
  */
-export async function deleteUrl(id: number, userId: string): Promise<void> {
-  await db
+export async function deleteUrl(id: number, userId: string): Promise<boolean> {
+  const deleted = await db
     .delete(url)
-    .where(and(eq(url.id, id), eq(url.userId, userId)));
+    .where(and(eq(url.id, id), eq(url.userId, userId)))
+    .returning({ id: url.id });
+
+  return deleted.length > 0;
 }
 
 /**

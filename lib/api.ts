@@ -12,10 +12,23 @@ export function isPgUniqueViolation(err: unknown): err is { code: string } {
   );
 }
 
+export type ApiErrorCode =
+  | "INVALID_FORMAT"
+  | "INVALID_ID"
+  | "UNAUTHORIZED"
+  | "NOT_FOUND"
+  | "ALIAS_TAKEN"
+  | "ALIAS_COLLISION"
+  | "INTERNAL_ERROR";
+
+export type ApiResponse<T> =
+  | { success: true; data: T }
+  | { success: false; error: { message: string; code?: ApiErrorCode } };
+
 /**
  * Standard JSON error response helper.
  */
-export function jsonError(message: string, code?: string, status = 400) {
+export function jsonError(message: string, code?: ApiErrorCode, status = 400) {
   return NextResponse.json(
     {
       success: false,
@@ -40,3 +53,4 @@ export function jsonSuccess<T>(data: T, status = 200) {
     { status }
   );
 }
+

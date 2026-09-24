@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
-import { db } from "@/db";
-import { url, user } from "@/db/schema";
+import { db } from "@/lib/db";
+import { url, user } from "@/lib/db/schema";
 import { eq, inArray } from "drizzle-orm";
 import {
   createUrl,

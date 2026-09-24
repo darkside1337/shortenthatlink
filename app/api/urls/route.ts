@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
   const parsed = createUrlSchema.safeParse(body);
   if (!parsed.success) {
-    return jsonError(parsed.error.issues[0].message, "INVALID_FORMAT", 400);
+    return jsonError(parsed.error.issues[0]?.message ?? "Invalid format.", "INVALID_FORMAT", 400);
   }
 
   if (parsed.data.expiresAt) {
@@ -47,8 +47,10 @@ export async function POST(request: NextRequest) {
           id: created.id,
           alias: created.alias,
           originalUrl: created.originalUrl,
+          isCustomAlias: created.isCustomAlias,
           expiresAt: created.expiresAt,
           createdAt: created.createdAt,
+          updatedAt: created.updatedAt,
         },
         201
       );
@@ -76,8 +78,10 @@ export async function POST(request: NextRequest) {
           id: created.id,
           alias: created.alias,
           originalUrl: created.originalUrl,
+          isCustomAlias: created.isCustomAlias,
           expiresAt: created.expiresAt,
           createdAt: created.createdAt,
+          updatedAt: created.updatedAt,
         },
         201
       );
@@ -95,7 +99,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   const userId = await getCurrentUserId();
   if (!userId) {
-    return jsonError("Authentication required.", undefined, 401);
+    return jsonError("Authentication required.", "UNAUTHORIZED", 401);
   }
 
   const urls = await listUrlsForUser(userId);

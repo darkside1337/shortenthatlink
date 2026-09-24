@@ -97,8 +97,7 @@ export const url = pgTable(
       .notNull(),
   },
   (table) => [
-    index("url_alias_idx").on(table.alias),
-    index("url_userId_idx").on(table.userId),
+    index("url_userId_createdAt_idx").on(table.userId, table.createdAt),
     index("url_expiresAt_idx").on(table.expiresAt),
   ],
 );

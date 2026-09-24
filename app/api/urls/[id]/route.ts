@@ -10,20 +10,20 @@ export async function PATCH(
 ) {
   const userId = await getCurrentUserId();
   if (!userId) {
-    return jsonError("Authentication required.", undefined, 401);
+    return jsonError("Authentication required.", "UNAUTHORIZED", 401);
   }
 
   const { id: rawId } = await params;
   const idResult = urlIdSchema.safeParse(rawId);
   if (!idResult.success) {
-    return jsonError(idResult.error.issues[0].message, "INVALID_ID", 400);
+    return jsonError(idResult.error.issues[0]?.message ?? "Invalid ID.", "INVALID_ID", 400);
   }
 
   const bodyResult = renameAliasSchema.safeParse(
     await request.json().catch(() => null)
   );
   if (!bodyResult.success) {
-    return jsonError(bodyResult.error.issues[0].message, "INVALID_FORMAT", 400);
+    return jsonError(bodyResult.error.issues[0]?.message ?? "Invalid format.", "INVALID_FORMAT", 400);
   }
 
   try {
@@ -34,7 +34,7 @@ export async function PATCH(
     );
 
     if (!updated) {
-      return jsonError("Link not found or access denied.", undefined, 404);
+      return jsonError("Link not found or access denied.", "NOT_FOUND", 404);
     }
 
     return jsonSuccess(updated, 200);
@@ -52,16 +52,20 @@ export async function DELETE(
 ) {
   const userId = await getCurrentUserId();
   if (!userId) {
-    return jsonError("Authentication required.", undefined, 401);
+    return jsonError("Authentication required.", "UNAUTHORIZED", 401);
   }
 
   const { id: rawId } = await params;
   const idResult = urlIdSchema.safeParse(rawId);
   if (!idResult.success) {
-    return jsonError(idResult.error.issues[0].message, "INVALID_ID", 400);
+    return jsonError(idResult.error.issues[0]?.message ?? "Invalid ID.", "INVALID_ID", 400);
   }
 
-  await deleteUrl(idResult.data, userId);
+  const deleted = await deleteUrl(idResult.data, userId);
+  if (!deleted) {
+    return jsonError("Link not found or access denied.", "NOT_FOUND", 404);
+  }
 
   return jsonSuccess(null, 200);
 }
+
