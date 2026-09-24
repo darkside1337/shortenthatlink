@@ -3,19 +3,16 @@
 > Generated from [`docs/PRD.md`](./PRD.md) and [`docs/ARCHITECTURE.md`](./ARCHITECTURE.md).
 > Phases are ordered by dependency — do not skip ahead. Each step is self-contained enough to verify before moving on.
 
-**Current state snapshot (as of roadmap creation):**
+**Current Implementation Status:**
+- Phases 1 through 5, Phase 5 SSR conversion, and foundational refactors (P0–P3) are **100% complete and verified**.
+- Core database schema and migrations reside in `lib/db/` (`lib/db/schema.ts`, `lib/db/index.ts`, `lib/db/migrations/`).
+- Core business logic, validation, and queries live in `lib/` (`urls.ts`, `alias.ts`, `auth.ts`, `expiration.ts`, `env.ts`).
+- Thin orchestrator routes in `app/` compose domain feature components in `features/shortener/` and `features/dashboard/`.
 
-- Next.js 16, Drizzle, Neon Postgres (`@neondatabase/serverless`), better-auth already installed.
-- `db/schema.ts` — only better-auth tables (`user`, `session`, `account`, `verification`). **`Url` table is missing.**
-- `db/index.ts` — Drizzle + Neon pool wired up. ✅
-- `lib/auth.ts` — `betterAuth()` with Drizzle adapter + Google + GitHub social providers. ✅
-- `lib/auth-client.ts` — `createAuthClient` with `signIn`, `signOut`, `useSession`. ✅
-- `app/api/auth/[...all]/route.ts` — better-auth catch-all handler. ✅
-- `app/login/page.tsx` — Google + GitHub OAuth sign-in UI. ✅ (UI complete, wired to real auth)
-- `app/page.tsx` — Home/hero page with shortener form. ✅ (UI complete, **mock/hardcoded — not wired to API**)
-- `app/(dashboard)/dashboard/page.tsx` — Dashboard UI. ✅ (UI complete, **mock/hardcoded — not wired to API**)
-- `app/not-found.tsx` — 404 page. ✅
-- No `proxy.ts`, no `app/[alias]/route.ts`, no `lib/alias.ts`, no `lib/reserved-aliases.ts`, no `lib/urls.ts`, no `/api/urls` routes, no `/api/cron/cleanup`, no `vercel.json`.
+> _Historical baseline snapshot (prior to Phase 1):_
+> - Next.js 16, Drizzle, Neon Postgres (`@neondatabase/serverless`), better-auth installed.
+> - `app/page.tsx` & `app/(dashboard)/dashboard/page.tsx` were static mock UI.
+> - No `proxy.ts`, `app/[alias]/route.ts`, `lib/urls.ts`, `/api/urls`, or `/api/cron/cleanup`.
 
 ---
 
@@ -23,7 +20,7 @@
 
 > Goal: Get the `Url` table in the database and all indexes defined.
 
-- [x] **1.1** Open `db/schema.ts`. Add the `Url` table using `pgTable`:
+- [x] **1.1** Open `lib/db/schema.ts`. Add the `Url` table using `pgTable`:
   - `id`: `serial("id").primaryKey()`
   - `alias`: `varchar("alias", { length: 52 }).notNull().unique()`
   - `originalUrl`: `text("original_url").notNull()`
@@ -109,7 +106,7 @@
 
 ### Step 2.4 — `lib/urls.ts`
 
-- [x] **2.4.1** Create `lib/urls.ts`. Import `db` from `@/db`, the `url` table (exported as `url` from `db/schema.ts`), `eq`, `and`, `lt`, `sql` from `drizzle-orm`, and any types needed.
+- [x] **2.4.1** Create `lib/urls.ts`. Import `db` from `@/lib/db`, the `url` table (exported as `url` from `lib/db/schema.ts`), `eq`, `and`, `lt`, `sql` from `drizzle-orm`, and any types needed.
 
 - [x] **2.4.2** Implement `findUrlByAlias(alias: string): Promise<typeof url.$inferSelect | null>`:
   - Query: `SELECT * FROM url WHERE alias = lowercase(alias) LIMIT 1`.
@@ -460,7 +457,7 @@ A flat list of every file that needs to be **created** (not yet in the repo):
 
 And every file that needs to be **modified** (already in the repo):
 
-- [x] `db/schema.ts` — add `Url` table + `urlRelations` + `urls: many(url)` to `userRelations`
+- [x] `lib/db/schema.ts` — add `Url` table + `urlRelations` + `urls: many(url)` to `userRelations`
 - [x] `lib/auth.ts` — add `getCurrentUserId()` helper
 - [x] `app/page.tsx` — wire form to `POST /api/urls`
 - [x] `app/(dashboard)/dashboard/page.tsx` — replace mock data with real API calls

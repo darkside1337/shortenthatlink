@@ -28,7 +28,7 @@ Build & Database: `pnpm build`, `pnpm db:generate`, `pnpm db:migrate`
 - **Routes compose features; features contain business logic:**
   - Route handlers and page components (`app/`) act solely as thin orchestrators: handle routing, search/route parameters, metadata, and mount feature components.
   - Domain components, user interaction flows, and client/server validation live within feature modules in `features/` (e.g. `features/shortener`, `features/dashboard`).
-  - Core database operations, auth adapters, and shared helpers stay in `lib/` and `db/`.
+  - Core database operations, auth adapters, and shared helpers stay in `lib/` (including `lib/db/`).
 
 ## Planning Workflow
 
