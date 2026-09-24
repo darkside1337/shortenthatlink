@@ -144,16 +144,16 @@
 
 > Goal: Protect `/dashboard` and write API routes so unauthenticated users get redirected/rejected. This is Next.js 16's `proxy.ts` pattern.
 
-- [ ] **3.1** Read `node_modules/next/dist/docs/` to understand the Next.js 16 `proxy.ts` route-protection convention before writing any code (per AGENTS.md rules).
+- [x] **3.1** Read `node_modules/next/dist/docs/` to understand the Next.js 16 `proxy.ts` route-protection convention before writing any code (per AGENTS.md rules).
 
-- [ ] **3.2** Create `proxy.ts` at the project root (same level as `package.json`). Configure it to:
+- [x] **3.2** Create `proxy.ts` at the project root (same level as `package.json`). Configure it to:
   - Redirect unauthenticated requests to `/dashboard` → redirect to `/login`.
   - Return 401 for unauthenticated requests to `PATCH /api/urls/[id]` and `DELETE /api/urls/[id]`.
   - Return 401 for unauthenticated `GET /api/urls` (list my links — requires auth per PRD §6).
   - Allow all other routes to pass through (public: `/`, `/login`, `/[alias]`, `POST /api/urls`, `GET /api/auth/[...all]`).
   - Use `auth.api.getSession({ headers: req.headers })` (or the equivalent Next.js 16 proxy API) to read the session.
 
-- [ ] **3.3** Verify the config: unauthenticated visit to `/dashboard` in the browser should redirect to `/login`. Authenticated visit should load the dashboard.
+- [x] **3.3** Verify the config: unauthenticated visit to `/dashboard` in the browser should redirect to `/login`. Authenticated visit should load the dashboard.
 
 ---
 
