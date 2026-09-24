@@ -1,6 +1,6 @@
 "use client"
 
-import { Clock, SlidersHorizontal, ChevronUp, ChevronDown } from "lucide-react"
+import { Clock, SlidersHorizontal, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AliasInput } from "@/components/ui/alias-input"
 import {
@@ -41,15 +41,21 @@ export function AdvancedOptions({
       >
         <SlidersHorizontal className="size-3 text-muted-foreground" />
         <span>Advanced options</span>
-        {isOpen ? (
-          <ChevronUp className="size-3 text-muted-foreground" />
-        ) : (
-          <ChevronDown className="size-3 text-muted-foreground" />
-        )}
+        <ChevronDown
+          className={`size-3 text-muted-foreground transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none ${isOpen ? "rotate-180" : ""}`}
+        />
       </Button>
 
-      {isOpen && (
-        <div className="mt-3 pt-3 border-t border-border/60 space-y-3 animate-in slide-in-from-top-2 duration-150">
+      <div
+        className="grid transition-[grid-template-rows,opacity] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-opacity"
+        style={{
+          gridTemplateRows: isOpen ? "1fr" : "0fr",
+          opacity: isOpen ? 1 : 0,
+        }}
+        aria-hidden={!isOpen}
+      >
+        <div className="overflow-hidden">
+          <div className="mt-3 pt-3 border-t border-border/60 space-y-3">
           {/* Custom Alias Input */}
           <div className="space-y-1">
             <label
@@ -99,8 +105,9 @@ export function AdvancedOptions({
               </SelectContent>
             </Select>
           </div>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

@@ -63,6 +63,9 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
   --radius-tag: 9999px;
+
+  /* Motion tokens (Emil Kowalski animation vocabulary) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 :root {

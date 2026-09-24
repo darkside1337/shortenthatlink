@@ -30,7 +30,7 @@ export function ShortenerForm() {
   } = useShortener()
 
   return (
-    <Card className="w-full mt-8 sm:mt-10 rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-xs text-left transition-all">
+    <Card className="w-full mt-8 sm:mt-10 rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-xs text-left transition-[border-color,background-color,box-shadow] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]">
       {createdResult ? (
         <ShortenResultCard
           result={createdResult}
@@ -42,11 +42,11 @@ export function ShortenerForm() {
           onReset={handleReset}
         />
       ) : (
-        <form onSubmit={handleShorten} className="space-y-3.5">
+        <form onSubmit={handleShorten} className="space-y-3.5 animate-in fade-in-50 slide-in-from-bottom-2 duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:fade-in-50 motion-reduce:slide-in-from-bottom-0">
           {error && (
             <div
               role="alert"
-              className="p-3 text-xs rounded-lg border border-rose-badge-bg bg-rose-badge-bg/30 text-rose-badge-text flex items-center gap-2"
+              className="p-3 text-xs rounded-lg border border-rose-badge-bg bg-rose-badge-bg/30 text-rose-badge-text flex items-center gap-2 animate-in fade-in-50 slide-in-from-top-2 duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:fade-in-50 motion-reduce:slide-in-from-top-0"
             >
               <AlertCircle className="size-4 shrink-0" />
               <span>{error}</span>

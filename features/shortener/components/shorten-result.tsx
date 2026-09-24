@@ -39,7 +39,7 @@ export function ShortenResultCard({
       : `https://${targetUrl}`
 
   return (
-    <div className="space-y-4 animate-in fade-in-50 duration-200">
+    <div className="space-y-4 animate-in fade-in-50 slide-in-from-bottom-2 duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:fade-in-50 motion-reduce:slide-in-from-bottom-0">
       <div className="flex items-center justify-between gap-2 pb-1 border-b border-border/60">
         <div className="flex items-center gap-2">
           <span className="inline-flex size-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -123,20 +123,29 @@ export function ShortenResultCard({
       </div>
 
       {/* QR Code Preview Drawer */}
-      {showQrDrawer && (
-        <div className="mt-3 pt-3 border-t border-border/60 flex items-center gap-4 bg-paper/60 p-3 rounded-xl border border-border/80">
-          <QRCodeImage value={fullShortUrl} size={84} />
-          <div className="flex flex-col gap-1 text-left">
-            <span className="text-xs font-medium text-foreground">Scan or Share</span>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Points directly to destination with 0ms surveillance hop.
-            </p>
-            <span className="font-mono text-[10px] text-muted-foreground">
-              alias: {result.alias}
-            </span>
+      <div
+        className="grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-opacity motion-reduce:duration-150"
+        style={{
+          gridTemplateRows: showQrDrawer ? "1fr" : "0fr",
+          opacity: showQrDrawer ? 1 : 0,
+        }}
+        aria-hidden={!showQrDrawer}
+      >
+        <div className="overflow-hidden">
+          <div className="mt-3 pt-3 border-t border-border/60 flex items-center gap-4 bg-paper/60 p-3 rounded-xl border border-border/80">
+            <QRCodeImage value={fullShortUrl} size={84} />
+            <div className="flex flex-col gap-1 text-left">
+              <span className="text-xs font-medium text-foreground">Scan or Share</span>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Points directly to destination with 0ms surveillance hop.
+              </p>
+              <span className="font-mono text-[10px] text-muted-foreground">
+                alias: {result.alias}
+              </span>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }
