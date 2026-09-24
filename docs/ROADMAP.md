@@ -163,9 +163,9 @@
 
 ### Step 4.1 — `POST /api/urls` and `GET /api/urls`
 
-- [ ] **4.1.1** Create `app/api/urls/route.ts`.
+- [x] **4.1.1** Create `app/api/urls/route.ts`.
 
-- [ ] **4.1.2** Implement `POST` handler (create a short URL):
+- [x] **4.1.2** Implement `POST` handler (create a short URL):
   1. Parse JSON body: `{ originalUrl, customAlias?, expiresAt? }`. Return `400` if `originalUrl` is missing or not a valid URL.
   2. Call `getCurrentUserId()` — may be `null` (anonymous is allowed).
   3. If `customAlias` is provided:
@@ -178,19 +178,19 @@
      - If the DB throws `23505`, retry. After 5 failures, return `{ success: false, error: { message: "Failed to generate a unique alias.", code: "ALIAS_COLLISION" } }` with status `500`.
   5. On success: return `{ success: true, data: { id, alias, originalUrl, expiresAt, createdAt } }` with status `201`.
 
-- [ ] **4.1.3** Implement `GET` handler (list current user's URLs):
+- [x] **4.1.3** Implement `GET` handler (list current user's URLs):
   1. Call `getCurrentUserId()`. If `null`, return `{ success: false, error: { message: "Authentication required." } }` with status `401`.
   2. Call `listUrlsForUser(userId)`.
   3. Return `{ success: true, data: urls }` with status `200`.
 
-- [ ] **4.1.4** Create `app/api/urls/__tests__/route.test.ts`. Use `vi.mock()` to stub `@/lib/urls`, `@/lib/alias`, and `@/lib/auth`. Test cases:
+- [x] **4.1.4** Create `app/api/urls/__tests__/route.test.ts`. Use `vi.mock()` to stub `@/lib/urls`, `@/lib/alias`, and `@/lib/auth`. Test cases:
   - `POST` returns `400` if `originalUrl` is missing from body
   - `POST` returns `400` if `originalUrl` is not a parseable URL
   - `POST` with a valid URL and no custom alias calls `generateAlias` + `createUrl` and returns `201`
   - `POST` with a valid custom alias calls `validateCustomAlias` + `createUrl` and returns `201`
   - `POST` with a custom alias failing validation returns `400 INVALID_FORMAT`
   - `POST` with a custom alias that collides in the DB returns `409 ALIAS_TAKEN`
-  - `POST` retries up to 5 times on generated-alias collision, then returns `500 ALIAS_COLLISION`
+  - `POST` retries up to 5 times on generated-alias collision, then returns 500 ALIAS_COLLISION
   - `GET` returns `401` when `getCurrentUserId()` returns `null`
   - `GET` returns `200` with the user's link array on success
 
@@ -198,9 +198,9 @@
 
 ### Step 4.2 — `PATCH /api/urls/[id]` and `DELETE /api/urls/[id]`
 
-- [ ] **4.2.1** Create `app/api/urls/[id]/route.ts`.
+- [x] **4.2.1** Create `app/api/urls/[id]/route.ts`.
 
-- [ ] **4.2.2** Implement `PATCH` handler (rename alias):
+- [x] **4.2.2** Implement `PATCH` handler (rename alias):
   1. Call `getCurrentUserId()`. If `null`, return `401`.
   2. Parse `id` from params as integer. If not a valid integer, return `400`.
   3. Parse JSON body: `{ newAlias }`. If missing, return `400`.
@@ -213,7 +213,7 @@
      - If DB throws `23505`, return `409` with `code: "ALIAS_TAKEN"`.
   6. On success: return `{ success: true, data: updatedRow }` with status `200`.
 
-- [ ] **4.2.3** Implement `DELETE` handler:
+- [x] **4.2.3** Implement `DELETE` handler:
   1. Call `getCurrentUserId()`. If `null`, return `401`.
   2. Parse `id` from params as integer. If invalid, return `400`.
   3. Call `deleteUrl(id, userId)`.
@@ -221,7 +221,7 @@
 
   > Note: `deleteUrl` silently does nothing if the row doesn't exist or the user doesn't own it (the WHERE clause just matches 0 rows). That's acceptable — idempotent delete is fine for MVP.
 
-- [ ] **4.2.4** Create `app/api/urls/[id]/__tests__/route.test.ts`. Use `vi.mock()` to stub `@/lib/urls`, `@/lib/alias`, and `@/lib/auth`. Test cases:
+- [x] **4.2.4** Create `app/api/urls/[id]/__tests__/route.test.ts`. Use `vi.mock()` to stub `@/lib/urls`, `@/lib/alias`, and `@/lib/auth`. Test cases:
   - `PATCH` returns `401` when `getCurrentUserId()` is `null`
   - `PATCH` returns `400` for a non-integer `id` param
   - `PATCH` returns `400` when `newAlias` fails `validateCustomAlias`
@@ -236,29 +236,29 @@
 
 ### Step 4.3 — `GET /[alias]` (redirect)
 
-- [ ] **4.3.1** Create `app/[alias]/route.ts` (a route handler, not a page — it handles the GET and does server-side redirect).
+- [x] **4.3.1** Create `app/[alias]/route.ts` (a route handler, not a page — it handles the GET and does server-side redirect).
 
-- [ ] **4.3.2** Add `export const dynamic = "force-dynamic"` at the top of the file. This is mandatory — alias→URL mappings change at write time and must never be served stale.
+- [x] **4.3.2** Add `export const dynamic = "force-dynamic"` at the top of the file. This is mandatory — alias→URL mappings change at write time and must never be served stale.
 
-- [ ] **4.3.3** Implement the `GET` handler:
+- [x] **4.3.3** Implement the `GET` handler:
   1. Lowercase the `alias` param from `params`.
   2. Call `findUrlByAlias(alias)`.
   3. If `null` → call Next.js `notFound()`.
   4. If `row.expiresAt` is not null and `row.expiresAt < new Date()` → call `notFound()`. (Logical expiry check — the row may still exist physically.)
   5. Otherwise → call `redirect(row.originalUrl)`.
 
-- [ ] **4.3.4** Confirm `app/not-found.tsx` is already in place (it is — shows 404/expired message). No changes needed.
+- [x] **4.3.4** Confirm `app/not-found.tsx` is already in place (it is — shows 404/expired message). No changes needed.
 
 ### Step 4.4 — `DELETE /api/cron/cleanup`
 
-- [ ] **4.4.1** Create `app/api/cron/cleanup/route.ts`.
+- [x] **4.4.1** Create `app/api/cron/cleanup/route.ts`.
 
-- [ ] **4.4.2** Implement `DELETE` handler:
+- [x] **4.4.2** Implement `DELETE` handler:
   1. Read the `Authorization` header. Compare to `Bearer ${process.env.CRON_SECRET}`. If missing or mismatched → return `401`.
   2. Call `deleteExpiredUrls()`.
   3. Return `{ success: true, data: { deleted: count } }` with status `200`.
 
-- [ ] **4.4.3** Create `app/api/cron/cleanup/__tests__/route.test.ts`. Use `vi.mock()` to stub `@/lib/urls`. Test cases:
+- [x] **4.4.3** Create `app/api/cron/cleanup/__tests__/route.test.ts`. Use `vi.mock()` to stub `@/lib/urls`. Test cases:
   - Returns `401` when the `Authorization` header is absent
   - Returns `401` when the bearer token does not match `process.env.CRON_SECRET`
   - Returns `200` with `{ deleted: <count> }` when the token is correct
@@ -267,7 +267,7 @@
 
 ### Step 4.5 — `vercel.json`
 
-- [ ] **4.5.1** Create `vercel.json` at the project root:
+- [x] **4.5.1** Create `vercel.json` at the project root:
   ```json
   {
     "crons": [{ "path": "/api/cron/cleanup", "schedule": "0 * * * *" }]
