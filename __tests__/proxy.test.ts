@@ -11,6 +11,14 @@ describe("proxy.ts Route Protection", () => {
     expect(response.headers.get("location")).toBe("http://localhost:3000/login");
   });
 
+  it("attaches callbackUrl when redirecting from a sub-dashboard path", () => {
+    const request = new NextRequest("http://localhost:3000/dashboard/settings");
+    const response = proxy(request);
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("http://localhost:3000/login?callbackUrl=%2Fdashboard%2Fsettings");
+  });
+
   it("allows requests with standard better-auth session cookie", () => {
     const request = new NextRequest("http://localhost:3000/dashboard", {
       headers: {

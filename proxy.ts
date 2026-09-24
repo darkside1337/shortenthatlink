@@ -5,7 +5,12 @@ export function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
 
   if (!sessionCookie) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    if (request.nextUrl.pathname !== "/dashboard") {
+      loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
+    }
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();

@@ -4,5 +4,25 @@
       "path": "/api/cron/cleanup",
       "schedule": "0 * * * *"
     }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(ico|png|svg|jpg|jpeg|webp|woff|woff2)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    }
   ]
 }
