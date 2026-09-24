@@ -65,7 +65,7 @@ export function CreateLinkDialog({
 
         {createError && (
           <div
-            className="rounded-lg border border-rose-badge-text/30 bg-rose-badge-bg/40 p-3 text-xs text-rose-badge-text flex items-center gap-2"
+            className="rounded-lg border border-rose-badge-text/30 bg-rose-badge-bg/40 p-3 text-xs text-rose-badge-text flex items-center gap-2 animate-in fade-in-50 duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:fade-in-50"
             role="alert"
           >
             <AlertCircle className="size-4 shrink-0" />

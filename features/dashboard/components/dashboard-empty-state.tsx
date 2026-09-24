@@ -10,7 +10,7 @@ interface DashboardEmptyStateProps {
 export function DashboardEmptyState({ onCreateNew }: DashboardEmptyStateProps) {
   return (
     <div className="rounded-2xl border border-dashed border-border bg-card/60 p-12 sm:p-16 flex flex-col items-center justify-center text-center animate-in fade-in-50 duration-200">
-      <div className="size-12 rounded-full border border-border bg-paper flex items-center justify-center text-muted-foreground mb-4">
+      <div className="size-12 rounded-full border border-border bg-paper flex items-center justify-center text-muted-foreground mb-4 animate-in fade-in-50 slide-in-from-bottom-2 duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] [animation-delay:50ms] motion-reduce:fade-in-50 motion-reduce:slide-in-from-bottom-0 motion-reduce:[animation-delay:0ms]">
         <Link2 className="size-5" strokeWidth={1.75} />
       </div>
 
@@ -21,7 +21,7 @@ export function DashboardEmptyState({ onCreateNew }: DashboardEmptyStateProps) {
         Create your first shortened link to get started. Clean redirects with zero tracking.
       </p>
 
-      <div className="mt-6">
+      <div className="mt-6 animate-in fade-in-50 slide-in-from-bottom-2 duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] [animation-delay:100ms] motion-reduce:fade-in-50 motion-reduce:slide-in-from-bottom-0 motion-reduce:[animation-delay:0ms]">
         <Button
           type="button"
           onClick={onCreateNew}

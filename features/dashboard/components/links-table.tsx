@@ -21,7 +21,7 @@ export function LinksTable({
   onOpenManage,
 }: LinksTableProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-in fade-in-50 duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:fade-in-50">
       {/* Desktop Table View (hidden on mobile, visible on sm+) */}
       <Card className="hidden sm:block overflow-hidden rounded-xl border border-border bg-card shadow-xs p-0">
         <table className="w-full text-left border-collapse">

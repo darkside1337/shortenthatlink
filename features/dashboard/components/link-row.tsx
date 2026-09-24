@@ -42,9 +42,9 @@ export const LinkRow = React.memo(function LinkRow({
             }`}
           >
             {isCopied ? (
-              <Check className="size-3.5 text-mint-text" />
+              <Check className="size-3.5 text-mint-text animate-in fade-in-50 zoom-in-50 duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:fade-in-50 motion-reduce:zoom-in-100" />
             ) : (
-              <Copy className="size-3.5" />
+              <Copy className="size-3.5 animate-in fade-in-50 zoom-in-50 duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:fade-in-50 motion-reduce:zoom-in-100" />
             )}
           </Button>
         </div>

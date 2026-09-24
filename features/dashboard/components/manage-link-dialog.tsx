@@ -157,7 +157,7 @@ export function ManageLinkDialog({
             {/* Danger Section */}
             <div className="rounded-xl border border-rose-badge-bg/60 bg-rose-badge-bg/25 p-4 transition-all">
               {isDeleteConfirming ? (
-                <div className="space-y-3 animate-in fade-in-50 duration-150">
+                <div className="space-y-3 animate-in fade-in-50 duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:fade-in-50">
                   <div className="space-y-1">
                     <h3 className="text-xs sm:text-sm font-medium text-rose-badge-text flex items-center gap-1.5">
                       <AlertTriangle className="size-3.5 shrink-0" />
@@ -202,7 +202,7 @@ export function ManageLinkDialog({
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in-50 duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:fade-in-50">
                   <div className="space-y-0.5">
                     <h3 className="text-xs sm:text-sm font-medium text-rose-badge-text">
                       Delete this link
