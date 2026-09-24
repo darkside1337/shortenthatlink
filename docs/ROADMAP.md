@@ -283,22 +283,23 @@
 
 ### Step 5.1 — Shortener Feature (`features/shortener` & `app/page.tsx`)
 
-- [ ] **5.1.1** Extract link creation UI and hooks into `features/shortener/`:
+- [x] **5.1.1** Extract link creation UI and hooks into `features/shortener/`:
   - `features/shortener/components/shortener-form.tsx`
   - `features/shortener/components/advanced-options.tsx`
   - `features/shortener/components/shorten-result.tsx`
   - `features/shortener/hooks/use-shortener.ts`
-- [ ] **5.1.2** In `features/shortener/hooks/use-shortener.ts`, replace the mock result assignment with a real `fetch("POST /api/urls", { body: JSON.stringify({ originalUrl: url, customAlias: customAlias || undefined, expiresAt: computedExpiresAt }) })`.
+- [x] **5.1.2** In `features/shortener/hooks/use-shortener.ts`, replace the mock result assignment with a real `fetch("POST /api/urls", { body: JSON.stringify({ originalUrl: url, customAlias: customAlias || undefined, expiresAt: computedExpiresAt }) })`.
   - Compute `expiresAt` from the `expiration` dropdown value before the fetch (e.g. `"1h"` → `new Date(Date.now() + 3600_000).toISOString()`; `"never"` → omit the field).
   - On success (`response.ok && data.success`): set `createdResult` using the response data.
   - On error: show the `data.error.message` to the user (add a simple error state string, render it below the form in red text).
-- [ ] **5.1.3** Add a loading state to the Shorten button: disable it and show a spinner or "Shortening…" text while the fetch is in flight.
-- [ ] **5.1.4** Update the `createdResult.shortUrl` display to use the real `window.location.origin` + `"/" + alias` instead of the hardcoded `"shortenTHATlink/..."` prefix.
-- [ ] **5.1.5** Keep `app/page.tsx` as a thin orchestrator composing the navigation header, `<ShortenerForm />`, and footer.
+- [x] **5.1.3** Add a loading state to the Shorten button: disable it and show a spinner or "Shortening…" text while the fetch is in flight.
+- [x] **5.1.4** Update the `createdResult.shortUrl` display to use the real `window.location.origin` + `"/" + alias` instead of the hardcoded `"shortenTHATlink/..."` prefix.
+- [x] **5.1.5** Keep `app/page.tsx` as a thin orchestrator composing the navigation header, `<ShortenerForm />`, and footer.
+
 
 ### Step 5.2 — Dashboard Feature (`features/dashboard` & `app/(dashboard)/dashboard/page.tsx`)
 
-- [ ] **5.2.1** Decompose the monolithic dashboard route into `features/dashboard/`:
+- [x] **5.2.1** Decompose the monolithic dashboard route into `features/dashboard/`:
   - `features/dashboard/components/dashboard-header.tsx`
   - `features/dashboard/components/links-table.tsx`
   - `features/dashboard/components/link-row.tsx`
@@ -307,23 +308,23 @@
   - `features/dashboard/components/dashboard-empty-state.tsx`
   - `features/dashboard/components/dashboard-view.tsx`
   - `features/dashboard/hooks/use-dashboard.ts`
-- [ ] **5.2.2** Remove `INITIAL_LINKS` hardcoded mock data and inline `validateAliasFormat` duplicates from the dashboard.
+- [x] **5.2.2** Remove `INITIAL_LINKS` hardcoded mock data and inline `validateAliasFormat` duplicates from the dashboard.
 
-- [ ] **5.2.2** Add a data-fetching effect: on mount, call `GET /api/urls`. On success, set the `links` state with the returned array. Map the API response fields to the local `LinkItem` interface (note field name differences: `isCustomAlias` → `isCustom`, `expiresAt` timestamp → formatted display string).
+- [x] **5.2.2** Add a data-fetching effect: on mount, call `GET /api/urls`. On success, set the `links` state with the returned array. Map the API response fields to the local `LinkItem` interface (note field name differences: `isCustomAlias` → `isCustom`, `expiresAt` timestamp → formatted display string).
 
-- [ ] **5.2.3** Wire the "New Link" dialog's `handleCreateLink` to `POST /api/urls`. On success, prepend the new link to the local `links` state (or re-fetch). On error, display the `error.message` inline in the form.
+- [x] **5.2.3** Wire the "New Link" dialog's `handleCreateLink` to `POST /api/urls`. On success, prepend the new link to the local `links` state (or re-fetch). On error, display the `error.message` inline in the form.
 
-- [ ] **5.2.4** Wire the Manage modal's `handleSaveManage` (rename) to `PATCH /api/urls/[link.id]` with `{ newAlias }`. On success, update the link in local state. On `409`, set `aliasError` to `"This alias is already taken."`. On other errors, set a generic error.
+- [x] **5.2.4** Wire the Manage modal's `handleSaveManage` (rename) to `PATCH /api/urls/[link.id]` with `{ newAlias }`. On success, update the link in local state. On `409`, set `aliasError` to `"This alias is already taken."`. On other errors, set a generic error.
 
-- [ ] **5.2.5** Wire `handleConfirmDelete` to `DELETE /api/urls/[link.id]`. On success, remove from local state. On error, close the modal and show a toast or alert (a simple `window.alert` is acceptable for MVP).
+- [x] **5.2.5** Wire `handleConfirmDelete` to `DELETE /api/urls/[link.id]`. On success, remove from local state. On error, close the modal and show a toast or alert (a simple `window.alert` is acceptable for MVP).
 
-- [ ] **5.2.6** Add loading states: disable the Save/Delete buttons and show feedback while requests are in flight.
+- [x] **5.2.6** Add loading states: disable the Save/Delete buttons and show feedback while requests are in flight.
 
-- [ ] **5.2.7** Remove the `validateAliasFormat` function from the dashboard — alias validation lives in `lib/alias.ts` on the server. On the client, you may keep simple inline length/character hints as UX, but the authoritative validation is the API's `400` response.
+- [x] **5.2.7** Remove the `validateAliasFormat` function from the dashboard — alias validation lives in `lib/alias.ts` on the server. On the client, you may keep simple inline length/character hints as UX, but the authoritative validation is the API's `400` response.
 
 ### Step 5.3 — Dashboard Route Group Layout
 
-- [ ] **5.3.1** Check `app/(dashboard)/layout.tsx`. If it doesn't exist, create it. It should:
+- [x] **5.3.1** Check `app/(dashboard)/layout.tsx`. If it doesn't exist, create it. It should:
   - Be a Server Component.
   - Call `getCurrentUserId()`. If `null`, call Next.js `redirect("/login")`.
   - Otherwise render `{children}`.
@@ -438,20 +439,20 @@
 
 A flat list of every file that needs to be **created** (not yet in the repo):
 
-- [ ] `lib/reserved-aliases.ts`
-- [ ] `lib/alias.ts`
-- [ ] `lib/urls.ts`
-- [ ] `proxy.ts` (project root)
-- [ ] `app/[alias]/route.ts`
-- [ ] `app/api/urls/route.ts`
-- [ ] `app/api/urls/__tests__/route.test.ts`
-- [ ] `app/api/urls/[id]/route.ts`
-- [ ] `app/api/urls/[id]/__tests__/route.test.ts`
-- [ ] `app/api/cron/cleanup/route.ts`
-- [ ] `app/api/cron/cleanup/__tests__/route.test.ts`
-- [ ] `app/(dashboard)/layout.tsx` (may already exist — check first)
-- [ ] `vercel.json` (project root)
-- [ ] `vitest.config.ts` (project root)
+- [x] `lib/reserved-aliases.ts`
+- [x] `lib/alias.ts`
+- [x] `lib/urls.ts`
+- [x] `proxy.ts` (project root)
+- [x] `app/[alias]/route.ts`
+- [x] `app/api/urls/route.ts`
+- [x] `app/api/urls/__tests__/route.test.ts`
+- [x] `app/api/urls/[id]/route.ts`
+- [x] `app/api/urls/[id]/__tests__/route.test.ts`
+- [x] `app/api/cron/cleanup/route.ts`
+- [x] `app/api/cron/cleanup/__tests__/route.test.ts`
+- [x] `app/(dashboard)/layout.tsx` (may already exist — check first)
+- [x] `vercel.json` (project root)
+- [x] `vitest.config.ts` (project root)
 - [ ] `playwright.config.ts` (project root)
 - [ ] `e2e/home.spec.ts`
 - [ ] `e2e/redirect.spec.ts`
@@ -459,8 +460,8 @@ A flat list of every file that needs to be **created** (not yet in the repo):
 
 And every file that needs to be **modified** (already in the repo):
 
-- [ ] `db/schema.ts` — add `Url` table + `urlRelations` + `urls: many(url)` to `userRelations`
-- [ ] `lib/auth.ts` — add `getCurrentUserId()` helper
-- [ ] `app/page.tsx` — wire form to `POST /api/urls`
-- [ ] `app/(dashboard)/dashboard/page.tsx` — replace mock data with real API calls
-- [ ] `package.json` — add `test:unit`, `test:integration`, `test:e2e`, `test:all`, `test:watch` scripts
+- [x] `db/schema.ts` — add `Url` table + `urlRelations` + `urls: many(url)` to `userRelations`
+- [x] `lib/auth.ts` — add `getCurrentUserId()` helper
+- [x] `app/page.tsx` — wire form to `POST /api/urls`
+- [x] `app/(dashboard)/dashboard/page.tsx` — replace mock data with real API calls
+- [x] `package.json` — add `test:unit`, `test:integration`, `test:e2e`, `test:all`, `test:watch` scripts
