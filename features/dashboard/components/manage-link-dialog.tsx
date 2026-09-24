@@ -1,6 +1,6 @@
 "use client"
 
-import { X, AlertCircle, AlertTriangle, Trash2 } from "lucide-react"
+import { X, AlertCircle, AlertTriangle, Trash2, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -18,6 +18,7 @@ interface ManageLinkDialogProps {
   manageAliasInput: string
   aliasError: string | null
   isDeleteConfirming: boolean
+  isSubmitting?: boolean
   onClose: () => void
   onAliasInputChange: (val: string) => void
   onSaveManage: (e: React.FormEvent) => void
@@ -30,6 +31,7 @@ export function ManageLinkDialog({
   manageAliasInput,
   aliasError,
   isDeleteConfirming,
+  isSubmitting = false,
   onClose,
   onAliasInputChange,
   onSaveManage,
@@ -40,7 +42,7 @@ export function ManageLinkDialog({
     <Dialog
       open={Boolean(managingLink)}
       onOpenChange={(open) => {
-        if (!open) onClose()
+        if (!open && !isSubmitting) onClose()
       }}
     >
       <DialogContent
@@ -64,10 +66,12 @@ export function ManageLinkDialog({
               </DialogHeader>
 
               <DialogClose
+                disabled={isSubmitting}
                 render={
                   <Button
                     variant="ghost"
                     size="icon-sm"
+                    disabled={isSubmitting}
                     onClick={onClose}
                     className="rounded-lg text-muted-foreground hover:text-foreground hover:bg-paper shrink-0 -mt-1 -mr-1"
                   />
@@ -103,6 +107,7 @@ export function ManageLinkDialog({
                     id="manage-alias"
                     type="text"
                     required
+                    disabled={isSubmitting}
                     value={manageAliasInput}
                     onChange={(e) => onAliasInputChange(e.target.value.toLowerCase())}
                     className="border-0 shadow-none focus-visible:ring-0 h-9 text-xs font-mono px-2.5"
@@ -139,13 +144,21 @@ export function ManageLinkDialog({
                   type="submit"
                   size="sm"
                   disabled={
+                    isSubmitting ||
                     Boolean(aliasError) ||
                     !manageAliasInput.trim() ||
                     manageAliasInput.trim() === managingLink.alias
                   }
                   className="h-9 px-4 text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg active:scale-[0.98] transition-all"
                 >
-                  Save Changes
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="size-3.5 mr-1.5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
                 </Button>
               </div>
             </form>
@@ -175,6 +188,7 @@ export function ManageLinkDialog({
                       type="button"
                       variant="outline"
                       size="sm"
+                      disabled={isSubmitting}
                       onClick={() => onToggleDeleteConfirming(false)}
                       className="h-8 px-3 text-xs rounded-lg border-border hover:bg-paper"
                     >
@@ -183,10 +197,18 @@ export function ManageLinkDialog({
                     <Button
                       type="button"
                       size="sm"
+                      disabled={isSubmitting}
                       onClick={onConfirmDelete}
                       className="h-8 px-3.5 text-xs font-medium rounded-lg bg-rose-badge-text text-white hover:bg-rose-badge-text/90 active:scale-[0.98] shadow-xs"
                     >
-                      Confirm Delete
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="size-3.5 mr-1.5 animate-spin" />
+                          <span>Deleting...</span>
+                        </>
+                      ) : (
+                        "Confirm Delete"
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -205,6 +227,7 @@ export function ManageLinkDialog({
                     type="button"
                     variant="outline"
                     size="sm"
+                    disabled={isSubmitting}
                     onClick={() => onToggleDeleteConfirming(true)}
                     className="h-8 px-3.5 text-xs font-medium text-rose-badge-text border-rose-badge-text/30 bg-rose-badge-bg/50 hover:bg-rose-badge-bg hover:text-rose-badge-text rounded-lg transition-colors active:scale-[0.98] shrink-0 self-start sm:self-auto"
                   >

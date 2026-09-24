@@ -2,6 +2,7 @@
 
 import { Plus, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { LinkItem } from "../types"
 import { useDashboard } from "../hooks/use-dashboard"
 import { DashboardHeader } from "./dashboard-header"
 import { DashboardEmptyState } from "./dashboard-empty-state"
@@ -9,9 +10,17 @@ import { LinksTable } from "./links-table"
 import { ManageLinkDialog } from "./manage-link-dialog"
 import { CreateLinkDialog } from "./create-link-dialog"
 
-export function DashboardView() {
+interface DashboardViewProps {
+  initialLinks?: LinkItem[]
+  user?: any
+}
+
+export function DashboardView({ initialLinks, user }: DashboardViewProps = {}) {
   const {
     links,
+    isLoading,
+    isSubmitting,
+    createError,
     copiedId,
     managingLink,
     manageAliasInput,
@@ -34,12 +43,12 @@ export function DashboardView() {
     setNewUrl,
     setNewCustomAlias,
     setNewExpiry,
-  } = useDashboard()
+  } = useDashboard({ initialLinks })
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-electric-blue/15 selection:text-electric-blue">
       {/* 1. Authenticated Nav Bar */}
-      <DashboardHeader />
+      <DashboardHeader user={user} />
 
       {/* Main Container */}
       <main className="flex-1 container mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-12">
@@ -66,7 +75,7 @@ export function DashboardView() {
 
         {/* Content: Populated Table vs Empty State */}
         <div className="mt-6">
-          {links.length === 0 ? (
+          {links.length === 0 && !isLoading ? (
             <DashboardEmptyState onCreateNew={() => setIsCreatingNew(true)} />
           ) : (
             <LinksTable
@@ -85,6 +94,7 @@ export function DashboardView() {
         manageAliasInput={manageAliasInput}
         aliasError={aliasError}
         isDeleteConfirming={isDeleteConfirming}
+        isSubmitting={isSubmitting}
         onClose={handleCloseManage}
         onAliasInputChange={setManageAliasInput}
         onSaveManage={handleSaveManage}
@@ -98,6 +108,8 @@ export function DashboardView() {
         newUrl={newUrl}
         newCustomAlias={newCustomAlias}
         newExpiry={newExpiry}
+        isSubmitting={isSubmitting}
+        createError={createError}
         onOpenChange={setIsCreatingNew}
         onUrlChange={setNewUrl}
         onCustomAliasChange={setNewCustomAlias}

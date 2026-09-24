@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Check, Copy, ExternalLink, Clock, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LinkItem } from "../types"
@@ -8,7 +9,7 @@ interface LinkRowProps {
   link: LinkItem
   isCopied: boolean
   isHoverSample?: boolean
-  onCopy: (id: string, alias: string) => void
+  onCopy: (id: number, alias: string) => void
   onOpenManage: (link: LinkItem, confirmDeleteFirst: boolean) => void
 }
 
@@ -19,6 +20,16 @@ export function LinkRow({
   onCopy,
   onOpenManage,
 }: LinkRowProps) {
+  const [host, setHost] = useState<string>("")
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setHost(window.location.host)
+    }
+  }, [])
+
+  const displayLink = host ? `${host}/${link.alias}` : link.alias
+
   return (
     <tr
       className={`transition-colors ${
@@ -29,7 +40,7 @@ export function LinkRow({
       <td className="py-3.5 px-4 font-mono">
         <div className="inline-flex items-center gap-1.5">
           <span className="bg-paper border border-border px-2 py-1 rounded-md text-xs font-mono font-medium text-foreground select-all">
-            shortenTHATlink/{link.alias}
+            {displayLink}
           </span>
           <Button
             type="button"

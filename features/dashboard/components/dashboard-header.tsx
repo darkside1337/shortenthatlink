@@ -16,7 +16,15 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useSession, signOut } from "@/lib/auth-client"
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+  user?: {
+    name?: string | null
+    email?: string | null
+    image?: string | null
+  } | null
+}
+
+export function DashboardHeader({ user }: DashboardHeaderProps = {}) {
   const router = useRouter()
   const { data: session } = useSession()
 
@@ -28,9 +36,18 @@ export function DashboardHeader() {
     }
   }
 
-  const userName = session?.user?.name || "Alex Chen"
-  const userEmail = session?.user?.email || "alex@shorten.link"
-  const userImage = session?.user?.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=96&h=96&fit=crop&crop=faces"
+  const userName = user
+    ? user.name || "User"
+    : session?.user?.name || "Alex Chen"
+
+  const userEmail = user
+    ? user.email || ""
+    : session?.user?.email || "alex@shorten.link"
+
+  const userImage = user
+    ? user.image || ""
+    : session?.user?.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=96&h=96&fit=crop&crop=faces"
+
   const userInitials =
     userName
       .split(" ")
@@ -38,7 +55,7 @@ export function DashboardHeader() {
       .filter(Boolean)
       .join("")
       .substring(0, 2)
-      .toUpperCase() || "AC"
+      .toUpperCase() || "U"
 
   return (
     <header className="border-b border-border/60 bg-background/85 backdrop-blur-md sticky top-0 z-40">
@@ -72,19 +89,23 @@ export function DashboardHeader() {
               }
             >
               <Avatar className="size-8 border border-border/80">
-                <AvatarImage src={userImage} alt={userName} />
+                {userImage ? <AvatarImage src={userImage} alt={userName} /> : null}
                 <AvatarFallback className="text-xs font-mono font-medium">{userInitials}</AvatarFallback>
               </Avatar>
               <div className="hidden sm:flex flex-col text-left">
                 <span className="text-xs font-medium leading-none text-foreground">{userName}</span>
-                <span className="text-[11px] text-muted-foreground font-mono">{userEmail}</span>
+                {userEmail ? (
+                  <span className="text-[11px] text-muted-foreground font-mono">{userEmail}</span>
+                ) : null}
               </div>
               <ChevronDown className="size-3.5 text-muted-foreground hidden sm:block" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 p-1.5">
               <DropdownMenuLabel className="px-2 py-1.5">
                 <p className="text-xs font-medium text-foreground">{userName}</p>
-                <p className="text-[11px] font-mono text-muted-foreground truncate">{userEmail}</p>
+                {userEmail ? (
+                  <p className="text-[11px] font-mono text-muted-foreground truncate">{userEmail}</p>
+                ) : null}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2 text-xs py-2 cursor-pointer bg-paper">

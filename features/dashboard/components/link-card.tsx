@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Check, Copy, ExternalLink, Clock, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -8,7 +9,7 @@ import { LinkItem } from "../types"
 interface LinkCardProps {
   link: LinkItem
   isCopied: boolean
-  onCopy: (id: string, alias: string) => void
+  onCopy: (id: number, alias: string) => void
   onOpenManage: (link: LinkItem, confirmDeleteFirst: boolean) => void
 }
 
@@ -18,13 +19,23 @@ export function LinkCard({
   onCopy,
   onOpenManage,
 }: LinkCardProps) {
+  const [host, setHost] = useState<string>("")
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setHost(window.location.host)
+    }
+  }, [])
+
+  const displayLink = host ? `${host}/${link.alias}` : link.alias
+
   return (
     <Card className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-xs">
       {/* Mobile Header: Short Link + 1-Tap Copy */}
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0 bg-paper border border-border px-2.5 py-1.5 rounded-lg flex-1 overflow-hidden">
           <span className="font-mono text-xs font-medium text-foreground truncate block">
-            shortenTHATlink/{link.alias}
+            {displayLink}
           </span>
         </div>
         <Button

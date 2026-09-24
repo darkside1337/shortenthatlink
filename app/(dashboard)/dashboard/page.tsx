@@ -1,3 +1,7 @@
+import { redirect } from "next/navigation"
+import { getCurrentUser } from "@/lib/auth"
+import { listUrlsForUser } from "@/lib/urls"
+import { mapUrlsToLinkItems } from "@/features/dashboard/lib/link-mapper"
 import { DashboardView } from "@/features/dashboard/components/dashboard-view"
 
 export const metadata = {
@@ -5,6 +9,14 @@ export const metadata = {
   description: "Manage your shortened links, custom aliases, and expirations.",
 }
 
-export default function DashboardPage() {
-  return <DashboardView />
+export default async function DashboardPage() {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/login")
+  }
+
+  const rawUrls = await listUrlsForUser(user.id)
+  const initialLinks = mapUrlsToLinkItems(rawUrls)
+
+  return <DashboardView initialLinks={initialLinks} user={user} />
 }

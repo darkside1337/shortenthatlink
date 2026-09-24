@@ -7,8 +7,8 @@ import { LinkCard } from "./link-card"
 
 interface LinksTableProps {
   links: LinkItem[]
-  copiedId: string | null
-  onCopy: (id: string, alias: string) => void
+  copiedId: number | null
+  onCopy: (id: number, alias: string) => void
   onOpenManage: (link: LinkItem, confirmDeleteFirst: boolean) => void
 }
 

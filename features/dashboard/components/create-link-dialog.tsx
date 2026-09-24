@@ -1,5 +1,6 @@
 "use client"
 
+import { Loader2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -23,6 +24,8 @@ interface CreateLinkDialogProps {
   newUrl: string
   newCustomAlias: string
   newExpiry: string
+  isSubmitting?: boolean
+  createError?: string | null
   onOpenChange: (open: boolean) => void
   onUrlChange: (val: string) => void
   onCustomAliasChange: (val: string) => void
@@ -35,6 +38,8 @@ export function CreateLinkDialog({
   newUrl,
   newCustomAlias,
   newExpiry,
+  isSubmitting = false,
+  createError = null,
   onOpenChange,
   onUrlChange,
   onCustomAliasChange,
@@ -51,6 +56,16 @@ export function CreateLinkDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {createError && (
+          <div
+            className="rounded-lg border border-rose-badge-text/30 bg-rose-badge-bg/40 p-3 text-xs text-rose-badge-text flex items-center gap-2"
+            role="alert"
+          >
+            <AlertCircle className="size-4 shrink-0" />
+            <span>{createError}</span>
+          </div>
+        )}
+
         <form onSubmit={onCreateLink} className="space-y-4 pt-2">
           <div className="space-y-1">
             <label htmlFor="create-url" className="text-xs font-medium text-foreground block">
@@ -60,6 +75,7 @@ export function CreateLinkDialog({
               id="create-url"
               type="url"
               required
+              disabled={isSubmitting}
               placeholder="https://example.com/long-page-url"
               value={newUrl}
               onChange={(e) => onUrlChange(e.target.value)}
@@ -78,6 +94,7 @@ export function CreateLinkDialog({
               <Input
                 id="create-alias"
                 type="text"
+                disabled={isSubmitting}
                 placeholder="custom-slug"
                 value={newCustomAlias}
                 onChange={(e) => onCustomAliasChange(e.target.value.toLowerCase())}
@@ -90,7 +107,11 @@ export function CreateLinkDialog({
             <label htmlFor="create-expiry" className="text-xs font-medium text-foreground block">
               Expiration
             </label>
-            <Select value={newExpiry} onValueChange={(val) => val && onExpiryChange(val)}>
+            <Select
+              disabled={isSubmitting}
+              value={newExpiry}
+              onValueChange={(val) => val && onExpiryChange(val)}
+            >
               <SelectTrigger id="create-expiry" className="w-full h-9 text-xs bg-background border-border">
                 <SelectValue placeholder="Select expiry" />
               </SelectTrigger>
@@ -109,6 +130,7 @@ export function CreateLinkDialog({
               type="button"
               variant="outline"
               size="sm"
+              disabled={isSubmitting}
               onClick={() => onOpenChange(false)}
               className="w-full sm:w-auto h-9 text-xs"
             >
@@ -117,9 +139,17 @@ export function CreateLinkDialog({
             <Button
               type="submit"
               size="sm"
+              disabled={isSubmitting}
               className="w-full sm:w-auto h-9 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              Shorten Link
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="size-3.5 mr-1.5 animate-spin" />
+                  <span>Creating...</span>
+                </>
+              ) : (
+                "Shorten Link"
+              )}
             </Button>
           </DialogFooter>
         </form>
