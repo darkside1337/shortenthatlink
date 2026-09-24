@@ -329,38 +329,13 @@
 
 ---
 
-## Phase 6 — Environment Variables & Deployment Checklist
-
-> Goal: Ensure the app is deployable to Vercel with all required configuration.
-
-- [ ] **6.1** Confirm `.env.local` (for local dev) contains:
-  - `DATABASE_URL` — Neon pooled connection string.
-  - `BETTER_AUTH_SECRET` — a long random string (generate with `openssl rand -base64 32`).
-  - `BETTER_AUTH_URL` — `http://localhost:3000` locally; production URL on Vercel.
-  - `NEXT_PUBLIC_BETTER_AUTH_URL` — same as above (client-side auth client needs it).
-  - `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` — from GitHub OAuth app settings.
-  - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` — from Google Cloud Console.
-  - `CRON_SECRET` — any strong random string; Vercel will also set this automatically for cron routes.
-
-- [ ] **6.2** Add all of the above env vars to the Vercel project settings (Settings → Environment Variables).
-
-- [ ] **6.3** Set OAuth callback URLs:
-  - GitHub OAuth app: add `https://<your-vercel-domain>/api/auth/callback/github`.
-  - Google OAuth app: add `https://<your-vercel-domain>/api/auth/callback/google`.
-
-- [ ] **6.4** Ensure `drizzle-kit migrate` runs as part of the Vercel build or as a one-time deploy step — **not on cold start**. One approach: add a `migrate` script in `package.json` and run it manually before the first deploy, or as a pre-build step in `vercel.json`.
-
-- [ ] **6.5** Confirm `vercel.json` exists (created in Phase 4.5) and the cron schedule is correct.
-
----
-
-## Phase 7 — End-to-End Verification
+## Phase 6 — End-to-End Verification
 
 > Goal: Automated Playwright specs covering the critical paths, followed by a final manual pass for the cases that are hardest to automate (OAuth login, DB console manipulation, etc.).
 
-### Step 7.0 — Playwright Setup & Specs
+### Step 6.0 — Playwright Setup & Specs
 
-- [ ] **7.0** Install Playwright and set up the E2E harness:
+- [x] **6.0** Install Playwright and set up the E2E harness:
   1. `pnpm add -D @playwright/test`
   2. `pnpm exec playwright install --with-deps chromium`
   3. Create `playwright.config.ts` at the project root:
@@ -379,56 +354,84 @@
      });
      ```
   4. Create the `e2e/` directory at the project root.
-  5. Add `e2e/.auth/` to `.gitignore` (used for saved session state in step 7.0.3).
+  5. Add `e2e/.auth/` to `.gitignore` (used for saved session state in step 6.0.3).
 
-- [ ] **7.0.1** Create `e2e/home.spec.ts` — anonymous shortener flow:
+- [x] **6.0.1** Create `e2e/home.spec.ts` — anonymous shortener flow:
   - Anonymous user can paste a URL, click Shorten, and see the result card with a short link
   - Submitting an invalid custom alias format shows an inline validation error
   - Creating two links with the same custom alias shows an inline `ALIAS_TAKEN` error on the second attempt
 
-- [ ] **7.0.2** Create `e2e/redirect.spec.ts` — redirect and expiry:
+- [x] **6.0.2** Create `e2e/redirect.spec.ts` — redirect and expiry:
   - Navigating to a valid short URL redirects to the original destination
-  - Navigating to an unknown alias renders the 404/expired page
+  - Navigating to an unknown alias returns HTTP 404 _(the redirect Route Handler serves status only — `notFound()` in a route handler returns a bare 404 by design, no `not-found.tsx` UI; specs assert status, not page text)_
 
-- [ ] **7.0.3** Create `e2e/dashboard.spec.ts` — authenticated CRUD using saved session state:
-  - Save auth state once: run `pnpm exec playwright codegen http://localhost:3000/login`, log in via OAuth, save the browser storage to `e2e/.auth/user.json`; configure the spec with `test.use({ storageState: "e2e/.auth/user.json" })`
+- [x] **6.0.3** Create `e2e/dashboard.spec.ts` — authenticated CRUD using saved session state:
+  - Auth state via better-auth `testUtils` (`e2e/auth.setup.ts` creates the user, injects session cookies, saves `e2e/.auth/user.json`) instead of manual `codegen` — same `test.use({ storageState })` shape
   - Dashboard loads and shows the user's links
   - Creating a link via the "New Link" dialog adds it to the table
   - Renaming an alias via the Manage modal reflects the new alias in the row
   - Deleting a link removes it from the table
 
-- [ ] **7.0.4** With `pnpm dev` running in a separate terminal, run `pnpm test:e2e` — all specs in `e2e/` should pass before proceeding to the manual verification steps below.
+- [x] **6.0.4** With `pnpm dev` running in a separate terminal, run `pnpm test:e2e` — all specs in `e2e/` should pass before proceeding to the manual verification steps below.
+  - Implemented with `webServer` auto-start in `playwright.config.ts` (no separate terminal needed) plus `e2e/api-auth.spec.ts` (401/404 ownership rules) and `e2e/api-cron.spec.ts` (cron auth + purge). **22/22 green.**
+  - Phase 6 finding (fixed): `isPgUniqueViolation` only matched top-level `{ code: "23505" }`, but the real Drizzle/Neon driver nests the PG error under `.cause` — real alias collisions returned 500 instead of 409. Fixed in `lib/api.ts` (recursive cause check) with regression tests in `lib/__tests__/api.test.ts`. Unit mocks were unaffected (flat shape still matches).
 
-### Step 7.1–7.12 — Manual Verification
+### Step 6.1–6.12 — Manual Verification
 
 > [!NOTE]
 > The automated specs above cover the happy paths. The steps below verify edge cases and deployment-specific behaviour that is hard to automate reliably.
 
-- [ ] **7.1** Anonymous user can shorten a URL on `/` and get a working redirect link. _(PRD §8 criterion 1)_
+- [x] **6.1** Anonymous user can shorten a URL on `/` and get a working redirect link. _(PRD §8 criterion 1)_ _(covered by `e2e/home.spec.ts` + `e2e/redirect.spec.ts`)_
 
-- [ ] **7.2** Short link redirect (`/[alias]`) works — paste the short URL in a new browser tab, confirm it redirects to the original URL. _(PRD §8 criterion 4)_
+- [x] **6.2** Short link redirect (`/[alias]`) works — paste the short URL in a new browser tab, confirm it redirects to the original URL. _(PRD §8 criterion 4)_ _(covered by `e2e/redirect.spec.ts`)_
 
-- [ ] **7.3** Custom alias validation: try creating a link with an alias that is too short, contains invalid chars, starts with a hyphen, is a reserved word — confirm each returns a `400` with the correct error message.
+- [x] **6.3** Custom alias validation: try creating a link with an alias that is too short, contains invalid chars, starts with a hyphen, is a reserved word — confirm each returns a `400` with the correct error message. _(covered by `e2e/home.spec.ts` invalid-format case + `e2e/api-auth.spec.ts` 400 cases)_
 
-- [ ] **7.4** Custom alias collision: create two links with the same alias — confirm the second returns `409 ALIAS_TAKEN`. _(PRD §8 criterion 3)_
+- [x] **6.4** Custom alias collision: create two links with the same alias — confirm the second returns `409 ALIAS_TAKEN`. _(PRD §8 criterion 3)_ _(covered by `e2e/home.spec.ts` collision case + `e2e/api-auth.spec.ts` 409 case)_
 
-- [ ] **7.5** Sign in with Google or GitHub. Confirm the session persists and the dashboard loads with real data. _(PRD §8 criterion 1 + 5)_
+- [ ] **6.5** Sign in with Google or GitHub. Confirm the session persists and the dashboard loads with real data. _(PRD §8 criterion 1 + 5)_ _(genuinely manual — requires interactive OAuth; E2E uses testUtils sessions instead)_
 
-- [ ] **7.6** Create a link while logged in. Confirm it appears in the dashboard with the correct alias, destination URL, and expiry. _(PRD §8 criterion 5)_
+- [x] **6.6** Create a link while logged in. Confirm it appears in the dashboard with the correct alias, destination URL, and expiry. _(PRD §8 criterion 5)_ _(covered by `e2e/dashboard.spec.ts` create case)_
 
-- [ ] **7.7** Rename a link's alias from the dashboard Manage modal. Confirm:
+- [x] **6.7** Rename a link's alias from the dashboard Manage modal. Confirm:
   - The old alias now 404s.
   - The new alias redirects correctly. _(PRD §8 criterion 5)_
+  _(covered by `e2e/dashboard.spec.ts` rename case — asserts HTTP 404 status for the old alias, per the redirect-endpoint contract)_
 
-- [ ] **7.8** Delete a link from the dashboard. Confirm the old alias now 404s and the link disappears from the list. _(PRD §8 criterion 5)_
+- [x] **6.8** Delete a link from the dashboard. Confirm the old alias now 404s and the link disappears from the list. _(PRD §8 criterion 5)_ _(covered by `e2e/dashboard.spec.ts` delete case)_
 
-- [ ] **7.9** Create a link with a short expiry (e.g. 1 hour, then manually set `expiresAt` to a past timestamp in the DB via Neon console). Confirm the redirect returns 404 (not found page) even though the row still exists. _(PRD §8 criterion 4 + 6)_
+- [x] **6.9** Create a link with a short expiry (e.g. 1 hour, then manually set `expiresAt` to a past timestamp in the DB via Neon console). Confirm the redirect returns 404 (not found page) even though the row still exists. _(PRD §8 criterion 4 + 6)_ _(covered by `e2e/redirect.spec.ts` expired case: backdates via the env-gated `POST /api/test-utils/urls` `expire` action — the Neon-console equivalent — then asserts HTTP 404)_
 
-- [ ] **7.10** Hit `DELETE /api/cron/cleanup` with the correct `Authorization: Bearer <CRON_SECRET>` header. Confirm expired rows are deleted and the response returns the count. _(PRD §8 criterion 6)_
+- [x] **6.10** Hit `DELETE /api/cron/cleanup` with the correct `Authorization: Bearer <CRON_SECRET>` header. Confirm expired rows are deleted and the response returns the count. _(PRD §8 criterion 6)_ _(covered by `e2e/api-cron.spec.ts`)_
 
-- [ ] **7.11** Hit `DELETE /api/cron/cleanup` without the auth header — confirm `401` is returned.
+- [x] **6.11** Hit `DELETE /api/cron/cleanup` without the auth header — confirm `401` is returned. _(covered by `e2e/api-cron.spec.ts`)_
 
-- [ ] **7.12** Try to `PATCH /api/urls/<id>` or `DELETE /api/urls/<id>` without a session — confirm `401`. Try with a session but a row owned by a different user (or a non-existent id) — confirm `404`.
+- [x] **6.12** Try to `PATCH /api/urls/<id>` or `DELETE /api/urls/<id>` without a session — confirm `401`. Try with a session but a row owned by a different user (or a non-existent id) — confirm `404`. _(covered by `e2e/api-auth.spec.ts` + unauthenticated `e2e/dashboard.spec.ts` cases)_
+
+---
+
+## Phase 7 — Environment Variables & Deployment Checklist
+
+> Goal: Ensure the app is deployable to Vercel with all required configuration.
+
+- [ ] **7.1** Confirm `.env.local` (for local dev) contains:
+  - `DATABASE_URL` — Neon pooled connection string.
+  - `BETTER_AUTH_SECRET` — a long random string (generate with `openssl rand -base64 32`).
+  - `BETTER_AUTH_URL` — `http://localhost:3000` locally; production URL on Vercel.
+  - `NEXT_PUBLIC_BETTER_AUTH_URL` — same as above (client-side auth client needs it).
+  - `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` — from GitHub OAuth app settings.
+  - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` — from Google Cloud Console.
+  - `CRON_SECRET` — any strong random string; Vercel will also set this automatically for cron routes.
+
+- [ ] **7.2** Add all of the above env vars to the Vercel project settings (Settings → Environment Variables).
+
+- [ ] **7.3** Set OAuth callback URLs:
+  - GitHub OAuth app: add `https://<your-vercel-domain>/api/auth/callback/github`.
+  - Google OAuth app: add `https://<your-vercel-domain>/api/auth/callback/google`.
+
+- [ ] **7.4** Ensure `drizzle-kit migrate` runs as part of the Vercel build or as a one-time deploy step — **not on cold start**. One approach: add a `migrate` script in `package.json` and run it manually before the first deploy, or as a pre-build step in `vercel.json`.
+
+- [ ] **7.5** Confirm `vercel.json` exists (created in Phase 4.5) and the cron schedule is correct.
 
 ---
 
@@ -450,10 +453,18 @@ A flat list of every file that needs to be **created** (not yet in the repo):
 - [x] `app/(dashboard)/layout.tsx` (may already exist — check first)
 - [x] `vercel.json` (project root)
 - [x] `vitest.config.ts` (project root)
-- [ ] `playwright.config.ts` (project root)
-- [ ] `e2e/home.spec.ts`
-- [ ] `e2e/redirect.spec.ts`
-- [ ] `e2e/dashboard.spec.ts`
+- [x] `playwright.config.ts` (project root)
+- [x] `e2e/home.spec.ts`
+- [x] `e2e/redirect.spec.ts`
+- [x] `e2e/dashboard.spec.ts`
+- [x] `e2e/auth.setup.ts` (testUtils-based sign-in, replaces manual codegen)
+- [x] `e2e/teardown.ts` (sweeps `e2e-*` users + `tst-*` aliases)
+- [x] `e2e/api-auth.spec.ts` (401/400/404/409 API rules)
+- [x] `e2e/api-cron.spec.ts` (cron auth + purge)
+- [x] `e2e/support/auth-test.ts` (test-only better-auth instance with `testUtils()`)
+- [x] `e2e/support/helpers.ts` (unique aliases, API setup, 5xx-only retry)
+- [x] `app/api/test-utils/urls/route.ts` (env-gated `expire`/`delete`/`sweep`, `E2E_TEST_UTILS=1` only — 404 in production)
+- [x] `lib/__tests__/api.test.ts` (isPgUniqueViolation flat + Drizzle-wrapped shapes)
 
 And every file that needs to be **modified** (already in the repo):
 
