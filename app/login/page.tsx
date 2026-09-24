@@ -1,22 +1,22 @@
-"use client"
-
-import { useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { redirect } from "next/navigation"
 import { Link2 } from "lucide-react"
+import { getCurrentUserId } from "@/lib/auth"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { SocialAuthButtons } from "@/features/auth/components/social-auth-buttons"
-import { useSession } from "@/lib/auth-client"
 import { ThemeToggle } from "@/components/theme-toggle"
 
-export default function LoginPage() {
-  const router = useRouter()
-  const { data: session } = useSession()
+export const metadata = {
+  title: "Sign in — shortenTHATlink",
+  description: "Sign in to manage and track your links.",
+}
 
-  useEffect(() => {
-    if (session) {
-      router.replace("/dashboard")
-    }
-  }, [session, router])
+export default async function LoginPage() {
+  const userId = await getCurrentUserId()
+  if (userId) {
+    redirect("/dashboard")
+  }
 
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 bg-background text-foreground select-none">
@@ -25,8 +25,8 @@ export default function LoginPage() {
         <ThemeToggle />
       </div>
 
-      {/* Centered Single Card (rounded-xl, bordered, padded) */}
-      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 sm:p-8 shadow-xs animate-in fade-in-50 duration-200">
+      {/* Centered Single Card */}
+      <Card className="w-full max-w-sm rounded-xl border border-border bg-card p-6 sm:p-8 shadow-xs animate-in fade-in-50 duration-200">
         {/* Brand Mark at Top of Card */}
         <div className="flex flex-col items-center text-center">
           <Link
@@ -64,16 +64,18 @@ export default function LoginPage() {
         <p className="text-[11px] text-muted-foreground/80 mt-6 text-center leading-normal">
           By continuing, you agree to our terms.
         </p>
-      </div>
+      </Card>
 
       {/* Subtle Return to Home Link */}
       <div className="mt-6 text-center">
-        <Link
-          href="/"
-          className="text-xs text-muted-foreground hover:text-foreground font-mono transition-colors"
+        <Button
+          variant="link"
+          nativeButton={false}
+          render={<Link href="/" />}
+          className="text-xs text-muted-foreground hover:text-foreground font-mono transition-colors h-auto p-0"
         >
           ← Back to home
-        </Link>
+        </Button>
       </div>
     </div>
   )

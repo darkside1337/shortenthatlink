@@ -29,3 +29,8 @@ export async function getCurrentUserId(): Promise<string | null> {
   return session?.user.id ?? null;
 }
 
+export async function getCurrentUser() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  return session?.user ?? null;
+}
+

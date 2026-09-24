@@ -1,14 +1,13 @@
-"use client"
-
 import Link from "next/link"
 import { Link2, ArrowRight, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useSession } from "@/lib/auth-client"
+import { getCurrentUserId } from "@/lib/auth"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ShortenerForm } from "@/features/shortener/components/shortener-form"
+import { NavAuthButton } from "@/features/auth/components/nav-auth-button"
 
-export default function Home() {
-  const { data: session } = useSession()
+export default async function Home() {
+  const userId = await getCurrentUserId()
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-electric-blue/15 selection:text-electric-blue">
@@ -33,27 +32,7 @@ export default function Home() {
           {/* Right Navigation: Theme Toggle + Dashboard/Sign in */}
           <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
-            {session ? (
-              <Button
-                variant="outline"
-                size="sm"
-                nativeButton={false}
-                render={<Link href="/dashboard" />}
-                className="h-9 px-4 text-xs font-medium border-border/80 hover:border-border hover:bg-paper active:scale-[0.98]"
-              >
-                <span>Dashboard</span>
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                nativeButton={false}
-                render={<Link href="/login" />}
-                className="h-9 px-4 text-xs font-medium border-border/80 hover:border-border hover:bg-paper active:scale-[0.98]"
-              >
-                <span>Sign in</span>
-              </Button>
-            )}
+            <NavAuthButton initialIsAuthenticated={Boolean(userId)} />
           </div>
         </div>
       </header>
@@ -76,25 +55,29 @@ export default function Home() {
           <ShortenerForm />
 
           {/* 4. Below the hero card: link to dashboard if logged in */}
-          {session ? (
+          {userId ? (
             <div className="mt-5">
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground font-medium transition-colors group"
+              <Button
+                variant="link"
+                nativeButton={false}
+                render={<Link href="/dashboard" />}
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground font-medium transition-colors group h-auto p-0"
               >
                 <span>View your dashboard</span>
                 <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5 text-electric-blue" />
-              </Link>
+              </Button>
             </div>
           ) : (
             <div className="mt-5">
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium transition-colors group"
+              <Button
+                variant="link"
+                nativeButton={false}
+                render={<Link href="/login" />}
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium transition-colors group h-auto p-0"
               >
                 <span>Sign in to save and manage your links</span>
                 <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5 text-electric-blue" />
-              </Link>
+              </Button>
             </div>
           )}
 
